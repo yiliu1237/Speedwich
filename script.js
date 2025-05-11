@@ -5,14 +5,36 @@ let base_X_pos = 0;
 
 const sauceOpacity = {"mayo": 0.9, "ketchup": 0.85};
 
+const ingredientThicknessMap = {
+  bread: 10,
+  cheese: 6,
+  tomato: 3,
+  ham: 5,
+  salmon: 10,
+  avocado: 3,
+  onion: 6,
+  egg: 10,
+  salad: 5,
+  mayo: 0,
+  ketchup: 0
+};
 
-function addIngredient(tag, thickness) {
+
+
+let hover_sandwich = false;
+let order_start = false;
+
+let layerStack = [];
+
+
+function addIngredient(tag) {
   const sandwich = document.querySelector('sandwich');
+  const thickness = ingredientThicknessMap[tag] || 0;
 
   const newTop = -stackHeight;
   const nextTop = -stackHeight - thickness;
 
-  console.log(newTop, tag);
+  // console.log(newTop, tag);
 
   let animationName = `animate${animationIndex}`;
   let keyframes = `
@@ -64,94 +86,122 @@ function addIngredient(tag, thickness) {
   } 
 
   sandwich.appendChild(el);
-
+  layerStack.push(el);   // Save reference to undo later
+  
   stackHeight += thickness;
   animationIndex++;
 }
 
 
+export function clearSandwich() {
+  const sandwich = document.querySelector('sandwich');
+  sandwich.innerHTML = ''; // remove all ingredients
+  stackHeight = 0; // reset height for next sandwich
+  animationIndex = 0;
+}
+
+
+export function undoLastLayer() {
+  if (layerStack.length === 0) return;
+
+  const last = layerStack.pop();    // get the most recently added layer
+
+  const tageName = last.tagName.toLowerCase();
+  const thickness = ingredientThicknessMap[tageName] || 0;
+
+  last.remove();                    // remove it from the DOM, last is a reference 
+
+  stackHeight -= thickness;        // adjust stack height
+}
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  const ingredientMap = {
-    '0': ['salmon', 10], 
-    '1': ['bread', 10],
-    '2': ['cheese', 10],
-    '3': ['salad', 5],
-    '4': ['tomato', 3],
-    '5': ['ham', 5],
-    '6': ['mayo', 0],
-    '7': ['ketchup', 0],
-    '8': ['egg', 10], 
-    '9': ['avocado', 3], 
-  };
+  document.addEventListener("click", (e) => {
 
-  document.addEventListener('keydown', (event) => {
-    const config = ingredientMap[event.key];
-    if (!config) return;
-    const [tag, thickness] = config;
-    addIngredient(tag, thickness);
-  });
-});
+    if(hover_sandwich) return;
 
+    const allUnderCursor = document.elementsFromPoint(e.clientX, e.clientY);
+    const overlappingIngredients = allUnderCursor.filter(el =>
+      el.classList.contains("bg-ingredient")
+    );
+  
+    if (overlappingIngredients.length === 0) return;
+  
+    let closest = null;
+    let closestDistance = Infinity;
+  
+    overlappingIngredients.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+  
+      const dx = e.clientX - centerX;
+      const dy = e.clientY - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+  
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = el;
+      }
+    });
 
-
-const sandwich = document.querySelector("sandwich");
-
-sandwich.addEventListener("mouseenter", () => {
-  const layers = Array.from(sandwich.children);
-  if (layers.length === 0) return;
-
-  // const layer = layers[layers.length - 1]; // last layer (top of sandwich)
-
-  let lift = 0
-
-  layers.forEach((layer, index) => {
-    const computedStyle = window.getComputedStyle(layer);
-    const original = layer.dataset.originalTransform || computedStyle.transform || "none";
-
-    // Save original only once
-    if (!layer.dataset.originalTransform) {
-      layer.dataset.originalTransform = original;
+  
+    if (closest) {
+      const tag = closest.dataset.tag;
+      addIngredient(tag);
     }
-
-    if(layer.tagName.toLowerCase() === "mayo" || layer.tagName.toLowerCase() === "ketchup"){
-      lift -= 5; // how much to lift
-    }
-    else{
-      lift -= 15; // how much to lift
-    }
-
-
-    console.log("Lifting: ", lift);
-
-    layer.style.transition = "transform 0.5s ease";
-
-    const rotation = lift * 0.08;
-    // const rotation = Math.sign(lift) * Math.log(Math.abs(lift) + 1) * 2;
-
-    // Prepend the translateY without modifying the rest
-    layer.style.transform = `rotateX(${rotation}deg) translateY(${lift}px) ${layer.dataset.originalTransform}`;
-
   });
-});
 
 
 
-sandwich.addEventListener("mouseleave", () => {
-  const layers = Array.from(sandwich.children);
-  layers.forEach((layer) => {
-    layer.style.transition = "transform 0.5s ease";
-    layer.style.transform = layer.dataset.originalTransform || "";
+  const sandwich = document.querySelector("sandwich");
+
+  sandwich.addEventListener("mouseenter", () => {
+    hover_sandwich = true;
+
+    const layers = Array.from(sandwich.children);
+    if (layers.length === 0) return;
+
+    let lift = 0
+
+    layers.forEach((layer, index) => {
+      const computedStyle = window.getComputedStyle(layer);
+      const original = layer.dataset.originalTransform || computedStyle.transform || "none";
+
+      // Save original only once
+      if (!layer.dataset.originalTransform) {
+        layer.dataset.originalTransform = original;
+      }
+
+      if(layer.tagName.toLowerCase() === "mayo" || layer.tagName.toLowerCase() === "ketchup"){
+        lift -= 5; // how much to lift
+      }
+      else{
+        lift -= 15; // how much to lift
+      }
+
+      layer.style.transition = "transform 0.5s ease";
+
+      const rotation = lift * 0.08;
+
+      // Prepend the translateY without modifying the rest
+      layer.style.transform = `rotateX(${rotation}deg) translateY(${lift}px) ${layer.dataset.originalTransform}`;
+
+    });
   });
+
+
+
+  sandwich.addEventListener("mouseleave", () => {
+    hover_sandwich = false;
+    const layers = Array.from(sandwich.children);
+    layers.forEach((layer) => {
+      layer.style.transition = "transform 0.5s ease";
+      layer.style.transform = layer.dataset.originalTransform || "";
+    });
+  });
+
+  
 });
 
-
-
-sandwich.addEventListener("mouseenter", () => {
-  document.body.style.overflowY = "auto"; // enable scroll
-});
-
-sandwich.addEventListener("mouseleave", () => {
-  document.body.style.overflowY = "hidden"; // lock again
-});

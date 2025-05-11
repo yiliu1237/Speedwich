@@ -9,28 +9,73 @@
 </head>
 <body>
 
+  <div id="start-screen">
+    <div class="start-overlay">
+      <h1 id="game-title">Stackwich</h1>
+      <p id="game-tagline">Stack it wise. Stack it fast.</p>
+      <button id="start-button">Start Game</button>
+    </div>
+  </div>
+  
+
+  <div id="top-bar">
+    <div id="points-counter">Coins: 0</div>
+    <button id="newGame-btn">New Game</button>
+    <button id="pause-btn">Pause</button>
+    <button id="undo-btn">Undo</button>
+  </div>  
+
+  <div id="gain-popup" class="hidden">+5 Points!</div>
+
+  <div id="game-timer">02:00</div>
+
+  <div id="game-over-popup" class="hidden">
+    <div class="popup-box">
+      <h2>Time's Up!</h2>
+      <p id="orders-completed-text">Orders Completed: 0</p>
+      <p id="total-points-text">Total Coins: 0</p>
+      <div class="popup-buttons">
+        <button id="popup-ok-btn">OK</button>
+        <button id="popup-restart-btn">Restart</button>
+      </div>
+    </div>
+  </div>
+
   <div class="scene">
     <sandwich> </sandwich>
 
     <div class="background" src="images/background1.png"></div>
     <div class="ingredient-layer">
-      <img class="bg-ingredient tomatoes" src="images/tomato.png"/>
-      <img class="bg-ingredient lettuces" src="images/lettuce.png"/>
-      <img class="bg-ingredient mayo" src="images/mayo.png"/>
-      <img class="bg-ingredient ketchup" src="images/ketchup.png"/>
-      <img class="bg-ingredient avocado" src="images/avocado.png"/>
-      <img class="bg-ingredient cheese" src="images/cheese.png"/>
-      <img class="bg-ingredient bread" src="images/bread2.png"/>
-      <img class="bg-ingredient onion" src="images/onion.png"/>
-      <img class="bg-ingredient egg" src="images/egg.png"/>
-      <img class="bg-ingredient salmon" src="images/salmon.png"/>
-      <img class="bg-ingredient hams" src="images/ham.png"/>
+      <img class="bg-ingredient tomatoes" src="images/tomato.png" data-tag="tomato"/>
+      <img class="bg-ingredient lettuces" src="images/lettuce.png" data-tag="salad"/>
+      <img class="bg-ingredient mayo" src="images/mayo.png" data-tag="mayo"/>
+      <img class="bg-ingredient ketchup" src="images/ketchup.png" data-tag="ketchup"/>
+      <img class="bg-ingredient avocado" src="images/avocado.png" data-tag="avocado"/>
+      <img class="bg-ingredient cheese" src="images/cheese.png" data-tag="cheese"/>
+      <img class="bg-ingredient bread" src="images/bread2.png" data-tag="bread"/>
+      <img class="bg-ingredient onion" src="images/onion2.png" data-tag="onion"/>
+      <img class="bg-ingredient egg" src="images/egg2.png" data-tag="egg"/>
+      <img class="bg-ingredient salmon" src="images/salmon.png" data-tag="salmon"/>
+      <img class="bg-ingredient hams" src="images/ham.png" data-tag="ham"/>   
     </div>
 
-    <img class="cutting-board" src="images/cutting_board.png"/>
+    <img class="cutting_board" src="images/cutting_board2.png"/>
+
+    <img class="orders" src="images/order.png" id="order1"/> 
+    <img class="orders" src="images/order.png" id="order2"/> 
+    <img class="orders" src="images/order.png" id="order3"/> 
+
+
+    <div id="order-popup" class="order-popup hidden">
+      <p id="order-text">Order details will go here</p>
+      <div id="order-buttons" class="button-group hidden">
+        <button id="submit-btn">Deliver</button>
+        <button id="cancel-btn">Cancel Order</button>
+      </div>
+    </div>
   </div>
 
-  <script src="script.js"></script>
-  <!-- <script src="control.js"></script> -->
+  <script type="module" src="script.js"></script>
+  <script type="module" src="orders.js"></script>
 </body>
 </html>
