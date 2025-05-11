@@ -1,341 +1,215 @@
-import { clearSandwich, undoLastLayer } from './script.js';
-import { startTimer, resetTimer } from './timer.js';
+const proteins = ["ham", "salmon", "egg"];
+const vegetables = ["tomato", "lettuce", "avocado"];
+const sauces = ["mayo", "ketchup"];
+const optionals = ["cheese", "onion"];
 
-
-const popup = document.getElementById('order-popup');
-const popupText = document.getElementById('order-text');
-const popupButtons = document.getElementById('order-buttons');
-
-const orderInfo = {
-  order1: "1x Tomato, 2x Ham, Extra Mayo",
-  order2: "Bread, Cheese, Egg, Ketchup",
-  order3: "Avocado & Salmon Deluxe",
+const comboTemplates = {
+  combo1: {
+    proteins: 2,
+    vegetables: 2,
+    sauces: 1,
+    extraBread: false,
+    optionalCheese: true,
+    optionalOnion: true
+  },
+  combo2: {
+    proteins: 1,
+    vegetables: 2,
+    sauces: 1,
+    extraBread: false,
+    optionalCheese: true,
+    optionalOnion: true
+  },
+  combo3: {
+    proteins: 4,
+    vegetables: 4,
+    sauces: 2,
+    extraBread: true,
+    optionalCheese: true,
+    optionalOnion: true
+  }
 };
 
-let currentFocused = null;
-let order_changing = false;
-let inGame = false;
+// Utility to select N distinct types and generate 1–2 slices of each
+function generateIngredientsWithCounts(pool, typeCount, sliceRange = [1, 4]) {
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const selectedTypes = shuffled.slice(0, typeCount);
+  const result = [];
+
+  selectedTypes.forEach(type => {
+    const num = Math.floor(Math.random() * (sliceRange[1] - sliceRange[0] + 1)) + sliceRange[0];
+    for (let i = 0; i < num; i++) {
+      result.push(type);
+    }
+  });
+
+  return result;
+}
 
 
-let totalCoins = 0;
-let ordersCompleted = 0;
-
-
-// debugging 
-function logOrderStyle(orderEl) {
-    const style = getComputedStyle(orderEl);
-    console.log(`Order ID: ${orderEl.id}`);
-    console.log(`Top: ${style.top}`);
-    console.log(`Left: ${style.left}`);
-    console.log(`Width: ${style.width}`);
-    console.log(`Height: ${style.height}`);
-    console.log(`Opacity: ${style.opacity}`);
-    console.log(`Position: ${style.position}`);
-    console.log(`Z-index: ${style.zIndex}`);
+export function generateOrder() {
+    const comboKeys = Object.keys(comboTemplates);
+    const randomKey = comboKeys[Math.floor(Math.random() * comboKeys.length)];
+    const template = comboTemplates[randomKey];
+  
+    let selected = {
+      proteins: generateIngredientsWithCounts(proteins, template.proteins, [1, 4]),
+      vegetables: generateIngredientsWithCounts(vegetables, template.vegetables, [1, 4]),
+      sauces: generateIngredientsWithCounts(sauces, template.sauces, [1, 1]),  // 1 per sauce
+      bread: template.extraBread ? ["bread"] : [],
+    };
+  
+    if (template.optionalCheese && Math.random() < 0.5) selected.cheese = true;
+    if (template.optionalOnion && Math.random() < 0.5) selected.onion = true;
+  
+    return {
+      ingredients: selected,
+      text: formatStructuredOrder({ ingredients: selected })
+    };
   }
   
 
+function formatStructuredOrder(order) {
+  const countItems = (arr) => {
+    const counts = {};
+    arr.forEach(item => counts[item] = (counts[item] || 0) + 1);
+    return Object.entries(counts)
+      .map(([name, count]) => count > 1 ? `${capitalize(name)} x${count}` : capitalize(name));
+  };
 
-function showPopup(orderEl, text, showButtons) {
-    if(!inGame) return;
+  const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-    const rect = orderEl.getBoundingClientRect();
+  const { proteins, vegetables, sauces, cheese, onion } = order.ingredients;
+  const dislikes = order.dislikes || [];
 
-    popupText.innerHTML = showButtons 
-    ? `${text}<br><span class="popup-hint pinned">(Click the order to unpin)</span>`
-    : `${text}<br><span class="popup-hint">(Click to pin this order)</span>`;  
+  let parts = [
+    ...countItems(proteins),
+    ...countItems(vegetables),
+    ...countItems(sauces),
+  ];
 
-    popup.style.top = `${rect.top * 1.2 + window.scrollY}px`;
-    popup.style.left = `${rect.left * 1.2 + window.scrollX}px`;
-    popup.style.width = `${rect.width * 0.7}px`;
-    popup.style.height = `${rect.height * 0.7}px`;
-    popup.classList.add('visible');
-    popup.classList.remove('hidden');
+  ["cheese", "onion"].forEach(opt => {
+    const present = order.ingredients[opt];
+    parts.push(present ? capitalize(opt) : `No ${capitalize(opt)}`);
+  });
 
-    if (showButtons) {
-      popupButtons.classList.remove('hidden');
-    } else {
-      popupButtons.classList.add('hidden');
-    }
+  if (dislikes.length > 0) {
+    dislikes.forEach(item => {
+      parts.push(`No ${capitalize(item)}`);
+    });
   }
 
-function hidePopup() {
-    if(!inGame) return;
-
-    popup.classList.remove('visible');
-    popup.classList.add('hidden');
-    popupButtons.classList.add('hidden');
+  return parts.join(", ");
 }
 
-
-function submitOrder(orderEl) {
-    hidePopup();
-    let points = calculateCoins();
-    clearSandwich();
-
-    //unfocus the old order
-    currentFocused = null;
-    popup.style.pointerEvents = 'none'; // avoid flikering
-
-    showGainPopup(points);
-    ordersCompleted += 1;
-
-    console.log("Here");
-}
-
-
-
-
-function getRandomOrderText() {
-    const options = [
-      "1x Tomato, 2x Ham, Extra Mayo",
-      "Bread, Cheese, Egg, Ketchup",
-      "Avocado & Salmon Deluxe",
-      "Lettuce, Onion, Egg",
-      "Cheese Blast with Ketchup",
+export function scoreSandwich(order, sandwich) {
+    const { ingredients } = order;
+  
+    const requiredItems = [
+      ...ingredients.proteins,
+      ...ingredients.vegetables,
+      ...ingredients.sauces,
+      ...(ingredients.cheese ? ["cheese"] : []),
+      ...(ingredients.onion ? ["onion"] : []),
     ];
-    return options[Math.floor(Math.random() * options.length)];
-}
 
+    console.log("requiredItems: ", requiredItems);
+  
+    const totalScore = (requiredItems.length + 2) * 2; // +2 for breads
 
-function fadeInOrder(orderEl){
-    orderEl.classList.remove('order-fade-out');
-    orderEl.classList.add('order-fade-in');
-} 
+    console.log("totalScore: ", totalScore);
 
-function fadeOutOrder(orderEl, callback){
-    order_changing = true;
-    orderEl.classList.remove('order-fade-in');
-    orderEl.classList.add('order-fade-out');
-
-    setTimeout(() => {
-        if (callback) callback();
-        order_changing = false;
-    }, 1000);
-} 
-
-
-function cancelOrder(orderEl) {
-    hidePopup();
-    //clearSandwich();
-
-    //unfocus the old order
-    currentFocused = null;
-    popup.style.pointerEvents = 'none'; // avoid flikering
-
-}
-
-
-
-function createNewOrder(orderEl) {
-    console.log("orderEl: ", orderEl);
-
-    orderInfo[orderEl.id] = getRandomOrderText(); 
-    popupText.textContent = orderInfo[orderEl.id];
-
-    hidePopup();
-}
-
-
-
-
-function calculateCoins() {
-    const sandwich = document.querySelector('sandwich');
-    const layers = Array.from(sandwich.children);
-
-    // Example scoring logic: 10 pts per layer, 5 pts bonus for sauces
     let score = 0;
-    layers.forEach(layer => {
-        const tag = layer.tagName.toLowerCase();
-        if (tag === "mayo" || tag === "ketchup") {
-            score += 5;
-        } else {
-            score += 10;
-        }
+    let valid_sandwich = true;
+    let text = "";
+  
+    // Check if it's a valid sandwich: bread on both ends
+    const first = sandwich[0];
+    const last = sandwich[sandwich.length - 1];
+  
+    if (first !== "bread" || last !== "bread") {
+      valid_sandwich = false;
+    }
+  
+    // Count ingredients in player's sandwich
+    const counts = sandwich.reduce((acc, item) => {
+      acc[item] = (acc[item] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log("counts: ", counts);
+  
+    // +2 per correct item used (cap to number required)
+    [...new Set(requiredItems)].forEach(item => {
+        const requiredCount = requiredItems.filter(i => i === item).length;
+        const usedCount = counts[item] || 0;
+
+        console.log("item counts[item]: ", item, counts[item]);
+      
+        score += 2 * Math.min(requiredCount, usedCount);
     });
 
-    totalCoins += score;
-    updatePointsDisplay();
+    console.log("score after correct: ", score);
 
-    return score;
-}
-
-
-function updatePointsDisplay() {
-    document.getElementById('points-counter').textContent = `Coins: ${totalCoins}`;
-}
-
-
-function showGainPopup(points) {
-    const popup = document.getElementById("gain-popup");
-    popup.textContent = `${points} Coins Gained!`;
-    popup.classList.remove("hidden");
-    popup.classList.add("show");
   
-    setTimeout(() => {
-      popup.classList.remove("show");
-    }, 1200);
+    // -10 per missing required item
+    requiredItems.forEach(item => {
+      if (!counts[item]) score -= 10;
+    });
+
+
+    console.log("score after missing: ", score);
   
-    setTimeout(() => {
-      popup.classList.add("hidden");
-    }, 1700);
-}
+    if (valid_sandwich) {
+        score += 2 * 2; //for breads
+      const ratio = score / totalScore;
+  
+      if (Math.abs(ratio - 1) < 0.001) {
+        const options = [
+            "This one's going on the menu photo.",
+            "Stacked like a pro. Respect.",
+            "Perfect build!"
+        ];
+        text = options[Math.floor(Math.random() * options.length)];
 
+      } else if (ratio >= 0.8) {
+        const options = [
+            "Looks great! Just a tiny miss.",
+            "Almost perfect.",
+            "That's solid stacking. One small slip."
+        ];
+        text = options[Math.floor(Math.random() * options.length)];
+      } else if (ratio >= 0.5) {
+        const options = [
+            "Almost there - a couple things missing.",
+            "Off by a few ingredients."
+        ];
+        text = options[Math.floor(Math.random() * options.length)];
+      } else if (ratio > 0) {
+        const options = [
+            "Was this... abstract sandwich art?",
+            "Chef's note: maybe don't quit your day job.", 
+            "A brave reinterpretation of the order."
+        ];
+        text = options[Math.floor(Math.random() * options.length)];
+      } 
+    } else{
+        score = (score > 0) ? Math.floor(score / 2) : score;
+        const options = [
+            "No bread, no glory. Sandwich denied.",
+            "Bread forgot you. So did the coins.",
+            "Missing bread. Missing soul."
+        ];
+        text = options[Math.floor(Math.random() * options.length)];
+    }
 
-
-function showGameOverPopup(score, orders) {
-    const popup = document.getElementById("game-over-popup");
-    document.getElementById("orders-completed-text").textContent = `Orders Completed: ${orders}`;
-    document.getElementById("total-points-text").textContent = `Total Coins: ${totalCoins}`;
-    popup.classList.remove("hidden");
-}
-
-
-
-function getGameStats() {
+    console.log("score: ", score);
+  
     return {
-      totalCoins,
-      ordersCompleted
+      score: Math.max(0, score),
+      feedback: text
     };
 }
-
-function onTimeout(score, orders) {
-    showGameOverPopup(score, orders);
-}
-
-
-function resetGame() {
-    hidePopup();
-    currentFocused = null;
-
-    totalCoins = 0;
-    ordersCompleted = 0;
   
-    clearSandwich();
-
-    popup.style.pointerEvents = 'none'; // avoid flikering
   
-    document.getElementById("game-over-popup").classList.add("hidden");
-
-    document.getElementById("points-counter").textContent = "Coins: 0";
   
-    resetTimer(); // From timer.js
-    if(inGame) startTimer("game-timer", getGameStats, onTimeout);
-  
-    document.querySelectorAll(".orders").forEach(createNewOrder);
-}
-
-
-
-
-document.querySelectorAll('.orders').forEach(order => {
-    console.log("order: ", order);
-    const id = order.id;
-
-    order.addEventListener('mouseenter', (e) => {
-        if (currentFocused) return;
-        if (order_changing) return;
-        showPopup(order, orderInfo[id], false);
-    });
-
-    order.addEventListener('mouseleave', () => {
-        if (currentFocused) return;
-        if (order_changing) return;
-        hidePopup();
-    });
-
-
-    // Click: toggle focus
-    order.addEventListener('click', () => {
-        if (order_changing) return; 
-
-        if (currentFocused === order) {
-            // Unfocus
-            currentFocused = null;
-            popup.style.pointerEvents = 'none'; // avoid flikering
-            hidePopup();
-            return;
-        }
-      
-        // Focused mode
-        currentFocused = order;
-        popup.style.pointerEvents = 'auto'; //enable the buttons
-        showPopup(order, orderInfo[id], true);
-    });
-
-    
-});
-
-
-
-document.getElementById('submit-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    let temp = currentFocused;
-    if (currentFocused) {
-      submitOrder(currentFocused);
-
-      fadeOutOrder(temp, () => {
-        createNewOrder(temp);
-        fadeInOrder(temp);
-      });
-    }
-
-  });
-  
-
-
-document.getElementById('cancel-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    let temp = currentFocused;
-    if (currentFocused) {
-        cancelOrder(currentFocused);
-
-        fadeOutOrder(temp, () => {
-            createNewOrder(temp);
-            fadeInOrder(temp);
-        });
-    }
-});
-  
-
-
-document.getElementById('undo-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    undoLastLayer();
-});
-
-
-document.getElementById("popup-ok-btn").addEventListener("click", (e) => {
-    e.stopPropagation();
-    const popup = document.getElementById("game-over-popup");
-    popup.classList.add("hidden");
-    inGame = false;
-    resetGame();
-});
-  
-
-document.getElementById("popup-restart-btn").addEventListener("click", (e) => {
-    e.stopPropagation();
-    inGame = true;
-    resetGame();
-});
-
-
-document.getElementById("newGame-btn").addEventListener("click", () => {
-    inGame = true;
-    resetGame();
-});
-
-
-
-document.body.classList.add("game-blocked");
-
-document.getElementById("start-button").addEventListener("click", (e) => {
-    e.stopPropagation();
-    document.getElementById("start-screen").style.display = "none";
-
-    document.body.classList.remove("game-blocked");
-    
-    inGame = true;
-    resetGame();
-});

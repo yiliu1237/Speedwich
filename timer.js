@@ -1,4 +1,4 @@
-const totalTime = 10; 
+const totalTime = 120; 
 let timeLeft = totalTime;       // seconds (2 minutes)
 let timerInterval = null;
 let onTimeoutCallback = null;

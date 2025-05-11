@@ -14,17 +14,17 @@ const ingredientThicknessMap = {
   avocado: 3,
   onion: 6,
   egg: 10,
-  salad: 5,
+  lettuce: 5,
   mayo: 0,
   ketchup: 0
 };
-
 
 
 let hover_sandwich = false;
 let order_start = false;
 
 let layerStack = [];
+let inGame = true;
 
 
 function addIngredient(tag) {
@@ -102,6 +102,8 @@ export function clearSandwich() {
 
 
 export function undoLastLayer() {
+  if (!inGame) return;
+
   if (layerStack.length === 0) return;
 
   const last = layerStack.pop();    // get the most recently added layer
@@ -109,15 +111,29 @@ export function undoLastLayer() {
   const tageName = last.tagName.toLowerCase();
   const thickness = ingredientThicknessMap[tageName] || 0;
 
-  last.remove();                    // remove it from the DOM, last is a reference 
+  last.remove();                  
 
   stackHeight -= thickness;        // adjust stack height
 }
 
 
 
+export function changeGameState(state){
+  inGame = state;
+}
+
+
+export function getCurrentSandwich() {
+  const layers = Array.from(document.querySelector("sandwich").children);
+  return layers.map(layer => layer.tagName.toLowerCase());
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
+
   document.addEventListener("click", (e) => {
+
+    if(!inGame) return;
 
     if(hover_sandwich) return;
 
