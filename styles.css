@@ -546,8 +546,8 @@ sandwich {
     width: 300px;
     perspective: 800px;
     position: absolute;
-    top: 65%;
-    left: 42%;
+    top: 60%;
+    left: 40%;
     z-index: 200;
 }
 
