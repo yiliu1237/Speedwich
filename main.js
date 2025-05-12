@@ -50,7 +50,7 @@ function showPopup(orderEl, text, showButtons) {
     const rect = orderEl.getBoundingClientRect();
 
     popupText.innerHTML = showButtons 
-    ? `${text}<br><span class="popup-hint pinned" style="color: gray;">(Click the order to unpin)</span>`
+    ? `${text}<br><span class="popup-hint pinned" style="color: brown;">(Click the order to unpin. Scroll down to deliver or cancel.)</span>`
     : `${text}<br><span class="popup-hint" style="color: gray;">(Click to pin this order)</span>`;  
 
     popup.style.top = `${rect.top * 1.2 + window.scrollY}px`;
@@ -59,6 +59,7 @@ function showPopup(orderEl, text, showButtons) {
     popup.style.height = `${rect.height * 0.7}px`;
     popup.classList.add('visible');
     popup.classList.remove('hidden');
+
 
     if (showButtons) {
       popupButtons.classList.remove('hidden');
@@ -209,6 +210,7 @@ function resetGame() {
 
     document.getElementById("pause-btn").textContent = "Pause";
     pause_game = false;
+
   
     document.querySelectorAll(".orders").forEach(createNewOrder);
 
@@ -224,6 +226,11 @@ document.querySelectorAll('.orders').forEach(order => {
     order.addEventListener('mouseenter', (e) => {
         if (currentFocused) return;
         if (order_changing) return;
+
+        const scrollWrapper = document.getElementById("order-scroll-wrapper");
+        scrollWrapper.scrollTop = 0;
+        console.log("scrollWrapper.scrollTop", scrollWrapper.scrollTop);
+
         showPopup(order, orderDescription[id], false);
     });
 
@@ -237,6 +244,10 @@ document.querySelectorAll('.orders').forEach(order => {
     // Click: toggle focus
     order.addEventListener('click', () => {
         if (order_changing) return; 
+
+        const scrollWrapper = document.getElementById("order-scroll-wrapper");
+        scrollWrapper.scrollTop = 0;
+        console.log("scrollWrapper.scrollTop", scrollWrapper.scrollTop);
 
         if (currentFocused === order) {
             // Unfocus
