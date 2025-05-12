@@ -17,6 +17,13 @@
 
 ---
 
+## Demo
+
+<img src="demo/demo_gif.gif" alt="Stackwich gameplay demo" width="600"/>
+
+
+---
+
 ## Features
 
 - Animated ingredient stacking
