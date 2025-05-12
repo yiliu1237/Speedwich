@@ -95,7 +95,10 @@ function submitOrder(orderEl) {
     popup.style.pointerEvents = 'none'; // avoid flikering
 
     showGainPopup(score, feedback);
-    ordersCompleted += 1;
+    
+    if (score > 0) {
+        ordersCompleted += 1;
+    }
 }
 
 
