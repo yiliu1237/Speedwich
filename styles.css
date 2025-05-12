@@ -320,16 +320,26 @@ img, .bg-ingredient, .ingredient-layer * {
 .order-popup {
   position: absolute;
   background: #fff9e3;
-  border: 2px solid #e0c88d;
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 0.2vw solid #e0c88d;
+  border-radius: 0.5vw;
+  padding: 1vw;
+  box-shadow: 0 0.5vw 1.2vw rgba(0, 0, 0, 0.2);
   font-family: 'Shadows Into Light', cursive;
-  font-size: 18px;
+  font-size: 1.2rem;
   color: #4b3b2f;
-  width: 200px;
+  width: 20vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+
   z-index: 100;
-  pointer-events: none;  /* auto: allows the buttons inside the popup to actually receive mouse clicks.*/
+  pointer-events: none;
   transition: opacity 0.2s ease;
   opacity: 0.8;
 }
@@ -346,24 +356,23 @@ img, .bg-ingredient, .ingredient-layer * {
 }
 
 .button-group {
-  margin-top: 10px;
+  margin-top: 0.6rem;
   text-align: center;
 }
 
 .button-group button {
   font-family: 'Shadows Into Light', cursive;
-  font-size: 16px;
-  padding: 6px 14px;
-  margin: 4px 6px;
-  border: 2px solid #a87c4f;
-  border-radius: 10px;
+  font-size: 1rem; /* ~16px */
+  padding: 0.5vw 1.5vw;
+  margin: 0.4vw 0.6vw;
+  border: 0.2vw solid #a87c4f;
+  border-radius: 1vw;
   background-color: #fcebc1;
   color: #4b2e1a;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 1px 2px 0 #d9b382;
+  box-shadow: 0.1vw 0.2vw 0 #d9b382;
 }
-
 
 .button-group button:hover {
   background-color: #fbd99a;
@@ -382,35 +391,35 @@ img, .bg-ingredient, .ingredient-layer * {
 
 #top-bar {
   position: fixed;
-  top: 10px;
-  right: 20px;
+  top: 2vh;
+  right: 2vw;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
+  gap: 1vh;
   z-index: 2000;
 }
 
 #points-counter {
-  font-size: 35px;
+  font-size: 3vw; 
   font-family: 'Lobster', cursive;
   color: #fff8dc;
   background-color: #c97d4b;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 1vh 2vw;
+  border-radius: 1vw;
+  box-shadow: 0.3vw 0.6vh 1vw rgba(0, 0, 0, 0.3);
 }
 
 #top-bar button {
-  font-size: 30px;
+  font-size: 2.5vw; 
   font-family: 'Shadows Into Light', cursive;
-  padding: 8px 14px;
-  border: 2px solid #a87c4f;
-  border-radius: 10px;
+  padding: 0.8vh 1.5vw;
+  border: 0.2vw solid #a87c4f;
+  border-radius: 1vw;
   background-color: #ffe4c1;
   color: #6a4522;
   cursor: pointer;
-  box-shadow: 1px 2px 0 #d9b382;
+  box-shadow: 0.2vw 0.4vh 0 #d9b382;
   transition: all 0.2s ease;
 }
 
@@ -458,6 +467,7 @@ img, .bg-ingredient, .ingredient-layer * {
   z-index: 3000;
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
+
 
 #gain-popup.show {
   opacity: 1;
@@ -508,19 +518,21 @@ body.game-blocked *:not(#start-screen):not(#start-screen *) {
   transition: all 0.3s ease;
 }
 
+
 #start-button:hover {
   background-color: #ffd6a8;
   transform: scale(1.05);
 }
 
 
+
 .start-overlay {
-  padding: 40px 60px;
-  border-radius: 16px;
+  padding: 5vh 6vw;
+  border-radius: 1.5vw;
   width: 60vh;
   background: rgba(255, 249, 227, 0.9); /* soft warm cream */
-  backdrop-filter: blur(8px);            /* frosted effect */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(0.8vw);         /* frosted effect */
+  box-shadow: 0 1vh 3vh rgba(0, 0, 0, 0.2);
   text-align: center;
 }
 
@@ -535,7 +547,7 @@ sandwich {
     perspective: 800px;
     position: absolute;
     top: 65%;
-    left: 43%;
+    left: 42%;
     z-index: 200;
 }
 

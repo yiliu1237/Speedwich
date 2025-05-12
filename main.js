@@ -365,3 +365,11 @@ document.getElementById("start-button").addEventListener("click", (e) => {
 
     free_play_mode = false;
 });
+
+
+
+window.addEventListener('resize', () => {
+    if (currentFocused) {
+      showPopup(currentFocused, orderDescription[currentFocused.id], true);
+    }
+  });
