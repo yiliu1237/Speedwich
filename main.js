@@ -132,7 +132,7 @@ function cancelOrder(orderEl) {
 function createNewOrder(orderEl) {
     const order = generateOrder();
     orderDescription[orderEl.id] = order.text;
-    orderInfo[orderEl.id] = order;
+    orderInfo[orderEl.id] = order.ingredients;
     popupText.textContent = order.text;
   
     hidePopup();

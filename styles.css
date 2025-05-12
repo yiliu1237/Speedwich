@@ -112,6 +112,9 @@
 
 .bg-ingredient {
   position: absolute;
+  user-select: none; 
+  -webkit-user-drag: none;
+  pointer-events: auto;
   width: 12vw; /* more consistent across screen sizes */
   transform: rotate(var(--angle, 0deg));
 }
@@ -878,7 +881,7 @@ sandwich salmon {
               #d66407 -3px 19px 0 -5px;              
 }
 
-sandwich salmon line {
+sandwich salmon .line {
   position: absolute;
   width: 1500px;
   height: 900px;
@@ -888,20 +891,20 @@ sandwich salmon line {
 }
 
 
-sandwich salmon line:nth-child(2) {
+sandwich salmon .line:nth-child(2) {
   top: -100px;
   left: -1100px;
   border: solid 35px #fff;
 }
 
-sandwich salmon line:nth-child(1) {
+sandwich salmon .line:nth-child(1) {
   top: 0px;
   left: -1100px;
   border: solid 28px #fff;
 }
 
 
-sandwich salmon line:nth-child(3) {
+sandwich salmon .line:nth-child(3) {
   top: -10px;
   left: -1250px;
   border: solid 30px #fff;

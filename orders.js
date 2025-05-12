@@ -59,8 +59,19 @@ export function generateOrder() {
       bread: template.extraBread ? ["bread"] : [],
     };
   
-    if (template.optionalCheese && Math.random() < 0.5) selected.cheese = true;
-    if (template.optionalOnion && Math.random() < 0.5) selected.onion = true;
+    if (template.optionalCheese && Math.random() < 0.5){
+        selected.cheese = true;
+    }
+    else{
+        selected.cheese = false;
+    }
+
+    if (template.optionalOnion && Math.random() < 0.5){
+        selected.onion = true;
+    }
+    else{
+        selected.onion = false;
+    }
   
     return {
       ingredients: selected,
@@ -102,8 +113,8 @@ function formatStructuredOrder(order) {
   return parts.join(", ");
 }
 
-export function scoreSandwich(order, sandwich) {
-    const { ingredients } = order;
+export function scoreSandwich(ingredients, sandwich) {
+    console.log(ingredients);
   
     const requiredItems = [
       ...ingredients.proteins,
@@ -112,12 +123,9 @@ export function scoreSandwich(order, sandwich) {
       ...(ingredients.cheese ? ["cheese"] : []),
       ...(ingredients.onion ? ["onion"] : []),
     ];
-
-    console.log("requiredItems: ", requiredItems);
   
     const totalScore = (requiredItems.length + 2) * 2; // +2 for breads
 
-    console.log("totalScore: ", totalScore);
 
     let score = 0;
     let valid_sandwich = true;
@@ -137,19 +145,14 @@ export function scoreSandwich(order, sandwich) {
       return acc;
     }, {});
 
-    console.log("counts: ", counts);
   
     // +2 per correct item used (cap to number required)
     [...new Set(requiredItems)].forEach(item => {
         const requiredCount = requiredItems.filter(i => i === item).length;
         const usedCount = counts[item] || 0;
-
-        console.log("item counts[item]: ", item, counts[item]);
       
         score += 2 * Math.min(requiredCount, usedCount);
     });
-
-    console.log("score after correct: ", score);
 
   
     // -10 per missing required item
@@ -158,11 +161,18 @@ export function scoreSandwich(order, sandwich) {
     });
 
 
-    console.log("score after missing: ", score);
+    if (ingredients.cheese === false && counts["cheese"]) {
+        score -= 10;
+    }
+
+    if (ingredients.onion === false && counts["onion"]) {
+        score -= 10;
+    }
+
   
     if (valid_sandwich) {
         score += 2 * 2; //for breads
-      const ratio = score / totalScore;
+      const ratio = Math.min(1, score / totalScore);
   
       if (Math.abs(ratio - 1) < 0.001) {
         const options = [
@@ -185,7 +195,7 @@ export function scoreSandwich(order, sandwich) {
             "Off by a few ingredients."
         ];
         text = options[Math.floor(Math.random() * options.length)];
-      } else if (ratio > 0) {
+      } else {
         const options = [
             "Was this... abstract sandwich art?",
             "Chef's note: maybe don't quit your day job.", 
@@ -203,7 +213,9 @@ export function scoreSandwich(order, sandwich) {
         text = options[Math.floor(Math.random() * options.length)];
     }
 
-    console.log("score: ", score);
+
+    console.log("total score: ", totalScore);
+    console.log("score: ", Math.max(0, score));
   
     return {
       score: Math.max(0, score),
