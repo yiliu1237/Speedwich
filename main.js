@@ -1,6 +1,7 @@
-import { clearSandwich, undoLastLayer, changeGameState, getCurrentSandwich } from './sandwich.js';
+console.log("🔥 main.js is running!");
+import { clearSandwich, undoLastLayer, changeGameState, getCurrentSandwich, resetExtraScore } from './sandwich.js';
 import { startTimer, resetTimer, stopTimer } from './timer.js';
-import { generateOrder, scoreSandwich } from './orders.js';
+import { generateOrder, scoreSandwich} from './orders.js';
 
 
 const popup = document.getElementById('order-popup');
@@ -27,6 +28,8 @@ let pause_game = false;
 
 
 let free_play_mode = false;
+
+let game_started = false;
 
 
 // debugging 
@@ -86,10 +89,12 @@ function submitOrder(orderEl) {
     const score = scoreSandwich(order, sandwich).score;
     const feedback = scoreSandwich(order, sandwich).feedback;
 
+
     totalCoins += score;
     updatePointsDisplay();
 
     clearSandwich();
+    resetExtraScore();
 
     //unfocus the old order
     currentFocused = null;
@@ -156,6 +161,9 @@ function showGainPopup(points, feedback) {
         ${points} Coins Gained!<br><br>${feedback}
       </div>
     `;
+    popup.style.background = `linear-gradient(to right, #ff9a5c, #f55128)`;
+    popup.style.webkitBackgroundClip = "text";
+    popup.style.webkitTextFillColor = "transparent";
     popup.classList.remove("hidden");
     popup.classList.add("show");
   
@@ -167,6 +175,7 @@ function showGainPopup(points, feedback) {
       popup.classList.add("hidden");
     }, 1700);
   }
+
 
 function showGameOverPopup(score, orders) {
     const popup = document.getElementById("game-over-popup");
@@ -198,6 +207,7 @@ function resetGame() {
     ordersCompleted = 0;
   
     clearSandwich();
+    resetExtraScore();
 
     popup.style.pointerEvents = 'none'; // avoid flikering
   
@@ -303,7 +313,11 @@ document.getElementById('cancel-btn').addEventListener('click', (e) => {
 
 document.getElementById('undo-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    undoLastLayer();
+    const needRemoveBonusPts = undoLastLayer();
+
+    if(needRemoveBonusPts){
+      
+    }
 });
 
 
@@ -357,6 +371,8 @@ document.getElementById("pause-btn").addEventListener("click", () => {
     pause_game = false;
     inGame = true;
     changeGameState(inGame);
+
+    settingsMenu.classList.remove('show');  // hide the menu
   
     startTimer("game-timer", getGameStats, onTimeout);
     document.getElementById("pause-btn").textContent = "Pause";
@@ -365,10 +381,20 @@ document.getElementById("pause-btn").addEventListener("click", () => {
 
 
 
+document.getElementById("rules-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  document.getElementById("rules-screen").classList.remove("hidden");
+});
+  
+  
+
+
+
 document.body.classList.add("game-blocked");
 
 document.getElementById("start-button").addEventListener("click", (e) => {
     e.stopPropagation();
+    game_started = true;
     document.getElementById("start-screen").style.display = "none";
 
     document.body.classList.remove("game-blocked");
@@ -381,9 +407,53 @@ document.getElementById("start-button").addEventListener("click", (e) => {
 });
 
 
+document.getElementById("rule-button").addEventListener("click", (e) => {
+  e.stopPropagation();
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("rules-screen").classList.remove("hidden");
+});
+
+
+document.getElementById("rule-back-button").addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  if(game_started){
+    document.getElementById("rules-screen").classList.add("hidden");
+    return;
+  }
+
+  document.getElementById("start-screen").style.display = "block";
+  document.getElementById("rules-screen").classList.add("hidden");
+});
+
+
+
+
+const settingsButton = document.getElementById('settings-button');
+const settingsMenu = document.getElementById('settings-menu');
+
+console.log("settingsButton: ", settingsButton);
+console.log("settingsMenu: ", settingsMenu);
+
+settingsButton.addEventListener('click', () => {
+  console.log("setting is clicked");
+  settingsMenu.classList.toggle('show');
+  settingsMenu.classList.remove('hidden'); 
+});
+
+
+const settingsMenuButtons = document.querySelectorAll('#settings-menu button');
+
+settingsMenuButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.id !== 'pause-btn') {
+      settingsMenu.classList.remove('show');  // hide the menu
+    }
+  });
+});
 
 window.addEventListener('resize', () => {
     if (currentFocused) {
       showPopup(currentFocused, orderDescription[currentFocused.id], true);
     }
-  });
+});

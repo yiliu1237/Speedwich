@@ -113,6 +113,132 @@ function formatStructuredOrder(order) {
   return parts.join(", ");
 }
 
+
+
+// protein, tomato, lettuce (from bot to top)
+export function checkBLTClassic(recentLayers) {
+  const proteins = ["ham", "salmon", "egg"];
+  for (let i = 0; i < recentLayers.length - 2; i++) {
+    if (proteins.includes(recentLayers[i]) &&
+    recentLayers[i + 1] === "tomato" &&
+    recentLayers[i + 2] === "lettuce") {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
+export function checkMeatyMelt(recentLayers) {
+  for (let i = 0; i < recentLayers.length - 2; i++) {
+    if (recentLayers[i] === "cheese" &&
+        ["ham", "salmon"].includes(recentLayers[i + 1]) &&
+        recentLayers[i + 2] === "cheese") {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+export function checkGardenFresh(recentLayers) {
+  const needed = ["lettuce", "tomato", "avocado"];
+  return needed.every(ingredient => recentLayers.includes(ingredient));
+}
+
+
+
+export function checkTomatomanic(recentLayers) {
+  const threeInARow = recentLayers.slice(-3).filter(i => i === "tomato").length === 3;
+  const fourInARow = recentLayers.slice(-4).filter(i => i === "tomato").length === 4;
+  return threeInARow && !fourInARow;
+}
+
+
+export function checkGreenOverload(recentLayers) {
+  const threeInARow = recentLayers.slice(-3).filter(i => i === "avocado").length === 3;
+  const fourInARow = recentLayers.slice(-4).filter(i => i === "avocado").length === 4;
+  return threeInARow && !fourInARow;
+}
+
+
+export function checkSlipperyStack(recentLayers) {
+  const sauces = ["mayo", "ketchup"];
+  for (let i = 0; i < recentLayers.length - 1; i++) {
+    if (
+      (recentLayers[i] === "egg" && sauces.includes(recentLayers[i + 1])) ||
+      (sauces.includes(recentLayers[i]) && recentLayers[i + 1] === "egg")
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+//At least 5 different non-bread ingredients
+function checkRainbowLayer(stack) {
+  const nonBread = stack.filter(i => i !== "bread");
+  const unique = new Set(nonBread);
+  return unique.size >= 5;
+}
+
+
+
+
+function checkSymmetryStack(stack) {
+  for (let i = 0; i < Math.floor(stack.length / 2); i++) {
+    if (stack[i] !== stack[stack.length - 1 - i]) {
+      return false;
+    }
+  }
+  return stack.length > 0;
+}
+
+
+
+function scoreIngredientMatch(requiredItems, sandwich) {
+  // Exclude bread from the sandwich for fair comparison
+  const usedElements = sandwich.filter(i => i !== "bread" && i !== "onion" && i !== "cheese");
+  const requiredElements = requiredItems.filter(i => i !== "bread" && i !== "onion" && i !== "cheese");
+
+  const usedCount = {};
+  const requiredCount = {};
+
+  // Count occurrences in both arrays
+  usedElements.forEach(i => usedCount[i] = (usedCount[i] || 0) + 1);
+  requiredElements.forEach(i => requiredCount[i] = (requiredCount[i] || 0) + 1);
+
+  console.log("In match usedElements: ", usedElements);
+  console.log("In match requiredElements: ", requiredElements);
+
+  let score = 0;
+
+  const allIngredients = new Set([...Object.keys(usedCount), ...Object.keys(requiredCount)]);
+
+  for (const ing of allIngredients) {
+    const used = usedCount[ing] || 0;
+    const required = requiredCount[ing] || 0;
+
+    const correct = Math.min(used, required);
+    const missed = required - correct;
+    const extra = used - correct;
+
+    score += correct * 3;
+    score -= missed * 5;
+    score -= extra * 5;
+  }
+
+
+  console.log("match scores: ", score);
+
+  return score;
+}
+
+
+
+
 export function scoreSandwich(ingredients, sandwich) {
     console.log(ingredients);
   
@@ -124,7 +250,7 @@ export function scoreSandwich(ingredients, sandwich) {
       ...(ingredients.onion ? ["onion"] : []),
     ];
   
-    const totalScore = (requiredItems.length + 2) * 2; // +2 for breads
+    const totalScore = (requiredItems.filter(i => i !== "onion" && i !== "cheese").length + 2) * 3; // +3 for breads
 
 
     let score = 0;
@@ -145,33 +271,31 @@ export function scoreSandwich(ingredients, sandwich) {
       return acc;
     }, {});
 
-  
-    // +2 per correct item used (cap to number required)
-    [...new Set(requiredItems)].forEach(item => {
-        const requiredCount = requiredItems.filter(i => i === item).length;
-        const usedCount = counts[item] || 0;
-      
-        score += 2 * Math.min(requiredCount, usedCount);
-    });
-
-  
-    // -10 per missing required item
-    requiredItems.forEach(item => {
-      if (!counts[item]) score -= 10;
-    });
+    score += scoreIngredientMatch(requiredItems, sandwich);
 
 
     if (ingredients.cheese === false && counts["cheese"]) {
-        score -= 10;
+        score -= 5;
     }
 
     if (ingredients.onion === false && counts["onion"]) {
-        score -= 10;
+        score -= 5;
+    }
+
+
+    if(checkRainbowLayer(sandwich)){
+      score += 5;
+      console.log("Rainbow Layers");
+    }
+
+    if(checkSymmetryStack(sandwich)){
+      score *= 2;
+      console.log("Symmetric Layers");
     }
 
   
     if (valid_sandwich) {
-        score += 2 * 2; //for breads
+      score += 3 * 2; //for breads
       const ratio = Math.min(1, score / totalScore);
   
       if (Math.abs(ratio - 1) < 0.001) {
@@ -191,8 +315,8 @@ export function scoreSandwich(ingredients, sandwich) {
         text = options[Math.floor(Math.random() * options.length)];
       } else if (ratio >= 0.5) {
         const options = [
-            "Almost there - a couple things missing.",
-            "Off by a few ingredients."
+            "Almost there - a couple things were off.",
+            "Something's missing... or maybe too much showed up to the party."
         ];
         text = options[Math.floor(Math.random() * options.length)];
       } else {

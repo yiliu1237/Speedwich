@@ -14,17 +14,69 @@
       <h1 id="game-title">Stackwich</h1>
       <p id="game-tagline">Stack it wise. Stack it fast.</p>
       <button id="start-button">Start Game</button>
+      <button id="rule-button">How to Play</button>
     </div>
+  </div>
+
+
+  <div id="rules-screen" class="rules-overlay hidden">
+    <div class="rules-content">
+      <button id="rule-back-button">Back</button>
+      <h1>How to Play</h1>
+      <p><strong>Objective:</strong> Stack ingredients to complete sandwich recipes and earn as many coins as possible.</p>
+      <p><strong>Controls:</strong> Click on ingredients to add them to your sandwich. Use <em>Undo</em> to remove the last item if needed.</p>
+      <p><strong>Combos:</strong> Special ingredient sequences grant bonus coins:</p>
+  
+      <ul class="combo-list">
+        <li><strong>BLT Classic (5 pts):</strong>
+          <span class="ingredient protein">Protein</span> +
+          <span class="ingredient tomato">Tomato</span> +
+         <span class="ingredient lettuce">Lettuce</span>
+          <em>(from bottom to top)</em>
+        </li>
+        <li><strong>Meaty Melt (5 pts):</strong>
+          <span class="ingredient cheese">Cheese</span> +
+          <span class="ingredient ham">Ham</span>/<span class="ingredient salmon">Salmon</span> +
+          <span class="ingredient cheese">Cheese</span>
+          <em>(from bottom to top)</em>
+        </li>
+        <li><strong>Garden Fresh (5 pts):</strong>
+          Contains <span class="ingredient lettuce">Lettuce</span>,
+          <span class="ingredient tomato">Tomato</span>, and
+          <span class="ingredient avocado">Avocado</span> <em>(any order)</em>
+        </li>
+        <li><strong>Tomatomanic (3 pts):</strong> 3 <span class="ingredient tomato">Tomatoes</span> in a row</li>
+        <li><strong>Green Overload (3 pts):</strong> 3 <span class="ingredient avocado">Avocados</span> in a row</li>
+        <li><strong>Slippery Stack (3 pts):</strong>
+          <span class="ingredient egg">Egg</span> next to
+          <span class="ingredient mayo">Mayo</span> or
+          <span class="ingredient ketchup">Ketchup</span>
+        </li>
+        <li><strong>Rainbow Stack (5 pts):</strong> At least 5 different non-<span class="ingredient bread">Bread</span> ingredients</li>
+        <li><strong>Symmetry Stack (×2):</strong> Stack reads the same forwards and backwards</li>
+      </ul>
+    </div>
+  
+    <p><strong>Time Limit:</strong> You have 2 minutes to build as many sandwiches as possible. Stack fast, stack wise!</p>
   </div>
   
 
+
   <div id="top-bar">
     <div id="points-counter">Coins: 0</div>
-    <button id="newGame-btn">New Game</button>
-    <button id="pause-btn">Pause</button>
+    <div id="settings-container">
+      <button id="settings-button">⚙️ Settings</button>
+      <div id="settings-menu" class="hidden">
+        <button id="rules-btn">Rules</button>
+        <button id="newGame-btn">New Game</button>
+        <button id="pause-btn">Pause</button>
+      </div>
+    </div>
     <button id="undo-btn">Undo</button>
   </div>  
 
+
+  
   <div id="gain-popup" class="hidden">+5 Points!</div>
 
   <div id="game-timer">02:00</div>

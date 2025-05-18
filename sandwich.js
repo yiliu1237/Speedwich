@@ -1,3 +1,7 @@
+import {checkBLTClassic, checkMeatyMelt, checkGardenFresh, checkTomatomanic, 
+  checkGreenOverload, checkSlipperyStack} from './orders.js';
+
+
 let stackHeight = 0;
 let animationIndex = 0;
 let base_X_pos = 0;
@@ -21,10 +25,13 @@ const ingredientThicknessMap = {
 
 
 let hover_sandwich = false;
-let order_start = false;
 
 let layerStack = [];
 let inGame = true;
+
+
+let extra_score = 0;
+let bonusHistory = [];
 
 
 function addIngredient(tag) {
@@ -101,6 +108,57 @@ export function clearSandwich() {
 }
 
 
+
+function showExtraPoints(points, type) {
+  const popup = document.getElementById("gain-popup");
+
+  let prompt = "";
+  let colors = [];
+
+  if (type === "BLTClassic") {
+    prompt = "Classic Layers!";
+    colors = ["#ff9a5c", "#f55128"];
+  } else if (type === "GardenFresh") {
+    prompt = "Garden Fresh!";
+    colors = ["#a8e063", "#56ab2f"];
+  } else if (type === "MeatyMelt") {
+    prompt = "Meaty Melt!";
+    colors = ["#b24525", "#e67e22"];
+  } else if (type === "Tomatomanic") {
+    prompt = "Tomatomanic!";
+    colors = ["#ff4e50", "#f9d423"];
+  } else if (type === "GreenOverload") {
+    prompt = "Green Overload!";
+    colors = ["#11998e", "#38ef7d"];
+  } else if (type === "Slippery") {
+    prompt = "Slippery Stack!";
+    colors = ["#ffb84d", "#ffffb3"];
+  } else {
+    console.log("Type doesn't exist.");
+    return;
+  }
+
+  popup.innerHTML = `${prompt}<br>+${points} Coins!`;
+  popup.style.background = `linear-gradient(to right, ${colors[0]}, ${colors[1]})`;
+  popup.style.webkitBackgroundClip = "text";
+  popup.style.webkitTextFillColor = "transparent";
+
+  // Do NOT change `color`, `innerHTML`, or clip/text-fill settings - CSS already does it
+  popup.classList.remove("hidden");
+  popup.classList.add("show");
+
+  setTimeout(() => {
+    popup.classList.remove("show");
+  }, 1200);
+
+  setTimeout(() => {
+    popup.classList.add("hidden");
+  }, 1700);
+}
+
+
+
+
 export function undoLastLayer() {
   if (!inGame) return;
 
@@ -114,6 +172,20 @@ export function undoLastLayer() {
   last.remove();                  
 
   stackHeight -= thickness;        // adjust stack height
+
+
+  // Check if a bonus was attached to this layer
+  const lastIndex = layerStack.length; // After pop, this is the removed layer's index
+
+  // Remove bonuses that were associated with that top layer
+  bonusHistory = bonusHistory.filter(bonus => {
+    if (bonus.index === lastIndex) {
+      extra_score -= bonus.points;
+      console.log(`Undo bonus: -${bonus.points}pts for ${bonus.type}`);
+      return false; // remove this bonus from history
+    }
+    return true;
+  });
 }
 
 
@@ -126,6 +198,22 @@ export function changeGameState(state){
 export function getCurrentSandwich() {
   const layers = Array.from(document.querySelector("sandwich").children);
   return layers.map(layer => layer.tagName.toLowerCase());
+}
+
+
+export function resetExtraScore() {
+  extra_score = 0;
+}
+
+function getRecentLayers(n) {
+  const current = getCurrentSandwich();
+  return current.slice(-n);
+}
+
+
+
+export function getbonusHistory() {
+  return bonusHistory;
 }
 
 
@@ -166,6 +254,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closest) {
       const tag = closest.dataset.tag;
       addIngredient(tag);
+
+      if(tag === "lettuce"){
+        const recentLayers = getRecentLayers(3);
+        console.log("recentLayers: ", recentLayers);
+        if(checkBLTClassic(recentLayers)){
+          extra_score += 5;
+          bonusHistory.push({ type: "BLTClassic", points: 5, index: layerStack.length - 1 });
+          showExtraPoints(5, "BLTClassic");
+        }else if(checkGardenFresh(recentLayers)){
+          extra_score += 5;
+          bonusHistory.push({ type: "GardenFresh", points: 5, index: layerStack.length - 1 });
+          showExtraPoints(5, "GardenFresh");
+        }
+      }else if(tag === "cheese"){
+        const recentLayers = getRecentLayers(3);
+        console.log("recentLayers: ", recentLayers);
+        if(checkMeatyMelt(recentLayers)){
+          extra_score += 3;
+          bonusHistory.push({ type: "MeatyMelt", points: 3, index: layerStack.length - 1 });
+          showExtraPoints(3, "MeatyMelt");
+        }
+      }else if(tag === "tomato"){
+        const recentLayers = getRecentLayers(4);
+        if(checkTomatomanic(recentLayers)){
+          extra_score += 3;
+          bonusHistory.push({ type: "Tomatomanic", points: 3, index: layerStack.length - 1 });
+          showExtraPoints(3, "Tomatomanic");
+        }
+      }else if(tag === "avocado"){
+        const recentLayers = getRecentLayers(4);
+        if(checkGreenOverload(recentLayers)){
+          extra_score += 3;
+          bonusHistory.push({ type: "GreenOverload", points: 3, index: layerStack.length - 1 });
+          showExtraPoints(3, "GreenOverload");
+        }
+      }else if(tag === "egg"){
+        const recentLayers = getRecentLayers(2);
+        if(checkSlipperyStack(recentLayers)){
+          extra_score += 3;
+          bonusHistory.push({ type: "Slippery", points: 3, index: layerStack.length - 1 });
+          showExtraPoints(3, "Slippery");
+        }
+      }
     }
   });
 
@@ -221,3 +352,5 @@ document.addEventListener('DOMContentLoaded', () => {
   
 });
 
+
+export {extra_score};
