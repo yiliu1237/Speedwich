@@ -165,15 +165,9 @@ export function checkGreenOverload(recentLayers) {
 
 export function checkSlipperyStack(recentLayers) {
   const sauces = ["mayo", "ketchup"];
-  for (let i = 0; i < recentLayers.length - 1; i++) {
-    if (
-      (recentLayers[i] === "egg" && sauces.includes(recentLayers[i + 1])) ||
-      (sauces.includes(recentLayers[i]) && recentLayers[i + 1] === "egg")
-    ) {
-      return true;
-    }
-  }
-  return false;
+  const hasSauce = sauces.some(sauce => recentLayers.includes(sauce));
+  const hasEgg = recentLayers.includes("egg");
+  return hasSauce && hasEgg;
 }
 
 

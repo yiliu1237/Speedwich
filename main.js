@@ -1,7 +1,12 @@
-console.log("🔥 main.js is running!");
-import { clearSandwich, undoLastLayer, changeGameState, getCurrentSandwich, resetExtraScore } from './sandwich.js';
+import { clearSandwich, undoLastLayer, changeGameState, getCurrentSandwich, resetExtraScore} from './sandwich.js';
 import { startTimer, resetTimer, stopTimer } from './timer.js';
 import { generateOrder, scoreSandwich} from './orders.js';
+import {getPoints, addPoints, updatePointsDisplay, resetPoints} from './coins.js';
+
+
+import {  playMusic, stopMusic, toggleMusic, isMusicOn, playUIClick, playSubmitOrderSound, playTimeUpSound } from './audio.js';
+
+
 
 
 const popup = document.getElementById('order-popup');
@@ -21,8 +26,6 @@ let currentFocused = null;
 let order_changing = false;
 let inGame = false;
 
-
-let totalCoins = 0;
 let ordersCompleted = 0;
 let pause_game = false;
 
@@ -89,8 +92,7 @@ function submitOrder(orderEl) {
     const score = scoreSandwich(order, sandwich).score;
     const feedback = scoreSandwich(order, sandwich).feedback;
 
-
-    totalCoins += score;
+    addPoints(score);
     updatePointsDisplay();
 
     clearSandwich();
@@ -149,10 +151,6 @@ function createNewOrder(orderEl) {
   
 
 
-function updatePointsDisplay() {
-    document.getElementById('points-counter').textContent = `Coins: ${totalCoins}`;
-}
-
 
 function showGainPopup(points, feedback) {
     const popup = document.getElementById("gain-popup");
@@ -177,24 +175,26 @@ function showGainPopup(points, feedback) {
   }
 
 
-function showGameOverPopup(score, orders) {
+function showGameOverPopup() {
     const popup = document.getElementById("game-over-popup");
-    document.getElementById("orders-completed-text").textContent = `Orders Completed: ${orders}`;
-    document.getElementById("total-points-text").textContent = `Total Coins: ${totalCoins}`;
+    document.getElementById("orders-completed-text").textContent = `Orders Completed: ${ordersCompleted}`;
+    document.getElementById("total-points-text").textContent = `Total Coins: ${getPoints()}`;
     popup.classList.remove("hidden");
 }
 
 
 
 function getGameStats() {
+    const totalPts = getPoints();
+
     return {
-      totalCoins,
+      totalPts,
       ordersCompleted
     };
 }
 
-function onTimeout(score, orders) {
-    showGameOverPopup(score, orders);
+function onTimeout() {
+    showGameOverPopup();
 }
 
 
@@ -203,7 +203,7 @@ function resetGame() {
     hidePopup();
     currentFocused = null;
 
-    totalCoins = 0;
+    resetPoints();
     ordersCompleted = 0;
   
     clearSandwich();
@@ -279,6 +279,8 @@ document.querySelectorAll('.orders').forEach(order => {
 document.getElementById('submit-btn').addEventListener('click', (e) => {
     if (!inGame) return;
 
+    playSubmitOrderSound();
+
     e.stopPropagation();
     let temp = currentFocused;
     if (currentFocused) {
@@ -307,17 +309,22 @@ document.getElementById('cancel-btn').addEventListener('click', (e) => {
             fadeInOrder(temp);
         });
     }
+
+    playUIClick();
 });
   
 
 
 document.getElementById('undo-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    const needRemoveBonusPts = undoLastLayer();
+    const removedPts = undoLastLayer();
 
-    if(needRemoveBonusPts){
-      
+    if(removedPts && inGame){
+      addPoints(removedPts * -1);
+      updatePointsDisplay();
     }
+
+    playUIClick();
 });
 
 
@@ -332,6 +339,8 @@ document.getElementById("popup-ok-btn").addEventListener("click", (e) => {
 
     free_play_mode = true;
     changeGameState(free_play_mode);
+
+    playUIClick();
 });
   
 
@@ -341,6 +350,8 @@ document.getElementById("popup-restart-btn").addEventListener("click", (e) => {
     resetGame();
 
     free_play_mode = false;
+
+    playUIClick();
 });
 
 
@@ -351,11 +362,15 @@ document.getElementById("newGame-btn").addEventListener("click", () => {
     changeGameState(inGame);
     resetGame();
 
+    playUIClick();
+
 });
 
 
 document.getElementById("pause-btn").addEventListener("click", () => {
     if (free_play_mode) return; 
+
+    playUIClick();
 
     if (!pause_game) {
       pause_game = true;
@@ -376,14 +391,18 @@ document.getElementById("pause-btn").addEventListener("click", () => {
   
     startTimer("game-timer", getGameStats, onTimeout);
     document.getElementById("pause-btn").textContent = "Pause";
+
+    
   });
   
 
 
 
 document.getElementById("rules-btn").addEventListener("click", (e) => {
-  e.stopPropagation();
+  e.stopPropagation(); 
   document.getElementById("rules-screen").classList.remove("hidden");
+
+  playUIClick();
 });
   
   
@@ -404,6 +423,9 @@ document.getElementById("start-button").addEventListener("click", (e) => {
     resetGame();
 
     free_play_mode = false;
+
+    playUIClick();
+    playMusic();
 });
 
 
@@ -411,11 +433,15 @@ document.getElementById("rule-button").addEventListener("click", (e) => {
   e.stopPropagation();
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("rules-screen").classList.remove("hidden");
+
+  playUIClick();
 });
 
 
 document.getElementById("rule-back-button").addEventListener("click", (e) => {
   e.stopPropagation();
+
+  playUIClick();
 
   if(game_started){
     document.getElementById("rules-screen").classList.add("hidden");
@@ -436,9 +462,10 @@ console.log("settingsButton: ", settingsButton);
 console.log("settingsMenu: ", settingsMenu);
 
 settingsButton.addEventListener('click', () => {
-  console.log("setting is clicked");
   settingsMenu.classList.toggle('show');
   settingsMenu.classList.remove('hidden'); 
+
+  playUIClick();
 });
 
 
@@ -450,7 +477,11 @@ settingsMenuButtons.forEach(btn => {
       settingsMenu.classList.remove('show');  // hide the menu
     }
   });
+
+  playUIClick();
 });
+
+
 
 window.addEventListener('resize', () => {
     if (currentFocused) {

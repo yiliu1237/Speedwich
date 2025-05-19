@@ -55,9 +55,16 @@
         <li><strong>Rainbow Stack (5 pts):</strong> At least 5 different non-<span class="ingredient bread">Bread</span> ingredients</li>
         <li><strong>Symmetry Stack (×2):</strong> Stack reads the same forwards and backwards</li>
       </ul>
-    </div>
+
+      <p><strong>Penalties:</strong></p>
+      <ul class="penalty-list">
+        <li>-5 pts: Missing an ingredient from the order</li>
+        <li>-5 pts: Adding an extra ingredient not in the order</li>
+      </ul>
   
-    <p><strong>Time Limit:</strong> You have 2 minutes to build as many sandwiches as possible. Stack fast, stack wise!</p>
+      <p><strong>Time Limit:</strong> You have 2 minutes to build as many sandwiches as possible. Stack fast, stack wise!</p>
+
+    </div>
   </div>
   
 
@@ -67,6 +74,15 @@
     <div id="settings-container">
       <button id="settings-button">⚙️ Settings</button>
       <div id="settings-menu" class="hidden">
+        <label>
+          Music Volume
+          <input type="range" id="music-volume" min="0" max="1" step="0.01" value="0.4">
+        </label>
+        <label>
+          SFX Volume
+          <input type="range" id="sfx-volume" min="0" max="1" step="0.01" value="0.5">
+        </label>
+
         <button id="rules-btn">Rules</button>
         <button id="newGame-btn">New Game</button>
         <button id="pause-btn">Pause</button>
@@ -76,7 +92,7 @@
   </div>  
 
 
-  
+
   <div id="gain-popup" class="hidden">+5 Points!</div>
 
   <div id="game-timer">02:00</div>
@@ -131,8 +147,12 @@
     </div>
   </div>
 
+
+
+  <script type="module" src="coins.js"></script>
   <script type="module" src="orders.js"></script>
   <script type="module" src="sandwich.js"></script>
+  <script type="module" src="audio.js"></script>
   <script type="module" src="main.js"></script>
 </body>
 </html>

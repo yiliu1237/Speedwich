@@ -1,6 +1,12 @@
 import {checkBLTClassic, checkMeatyMelt, checkGardenFresh, checkTomatomanic, 
   checkGreenOverload, checkSlipperyStack} from './orders.js';
 
+import {getPoints, addPoints, updatePointsDisplay, resetPoints} from './coins.js';
+
+
+import {  playBonusClick } from './audio.js';
+
+
 
 let stackHeight = 0;
 let animationIndex = 0;
@@ -177,15 +183,25 @@ export function undoLastLayer() {
   // Check if a bonus was attached to this layer
   const lastIndex = layerStack.length; // After pop, this is the removed layer's index
 
+  let removedPts = 0;
+
   // Remove bonuses that were associated with that top layer
   bonusHistory = bonusHistory.filter(bonus => {
     if (bonus.index === lastIndex) {
       extra_score -= bonus.points;
+
+      console.log("bonus.points: ", bonus.points);
+      removedPts = bonus.points;
       console.log(`Undo bonus: -${bonus.points}pts for ${bonus.type}`);
       return false; // remove this bonus from history
     }
     return true;
   });
+
+
+  console.log("final removedPts: ", removedPts);
+
+  return removedPts;
 }
 
 
@@ -205,16 +221,24 @@ export function resetExtraScore() {
   extra_score = 0;
 }
 
+
+
 function getRecentLayers(n) {
   const current = getCurrentSandwich();
   return current.slice(-n);
 }
 
 
+function updateBasedOnBonusCombo(bonus_pts, bonus_type, stackLayer_index){
+  playBonusClick();
 
-export function getbonusHistory() {
-  return bonusHistory;
+  extra_score += bonus_pts;
+  bonusHistory.push({ type: bonus_type, points: bonus_pts, index: stackLayer_index });
+  showExtraPoints(bonus_pts, bonus_type);
+  addPoints(bonus_pts);
+  updatePointsDisplay(bonus_pts);
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -259,42 +283,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const recentLayers = getRecentLayers(3);
         console.log("recentLayers: ", recentLayers);
         if(checkBLTClassic(recentLayers)){
-          extra_score += 5;
-          bonusHistory.push({ type: "BLTClassic", points: 5, index: layerStack.length - 1 });
-          showExtraPoints(5, "BLTClassic");
+          updateBasedOnBonusCombo(5, "BLTClassic", layerStack.length - 1);
         }else if(checkGardenFresh(recentLayers)){
-          extra_score += 5;
-          bonusHistory.push({ type: "GardenFresh", points: 5, index: layerStack.length - 1 });
-          showExtraPoints(5, "GardenFresh");
+          updateBasedOnBonusCombo(5, "GardenFresh", layerStack.length - 1);
         }
       }else if(tag === "cheese"){
         const recentLayers = getRecentLayers(3);
         console.log("recentLayers: ", recentLayers);
         if(checkMeatyMelt(recentLayers)){
-          extra_score += 3;
-          bonusHistory.push({ type: "MeatyMelt", points: 3, index: layerStack.length - 1 });
-          showExtraPoints(3, "MeatyMelt");
+          updateBasedOnBonusCombo(3, "MeatyMelt", layerStack.length - 1);
         }
       }else if(tag === "tomato"){
         const recentLayers = getRecentLayers(4);
         if(checkTomatomanic(recentLayers)){
-          extra_score += 3;
-          bonusHistory.push({ type: "Tomatomanic", points: 3, index: layerStack.length - 1 });
-          showExtraPoints(3, "Tomatomanic");
+          updateBasedOnBonusCombo(3, "Tomatomanic", layerStack.length - 1);
         }
       }else if(tag === "avocado"){
         const recentLayers = getRecentLayers(4);
         if(checkGreenOverload(recentLayers)){
-          extra_score += 3;
-          bonusHistory.push({ type: "GreenOverload", points: 3, index: layerStack.length - 1 });
-          showExtraPoints(3, "GreenOverload");
+          updateBasedOnBonusCombo(3, "GreenOverload", layerStack.length - 1);
         }
       }else if(tag === "egg"){
         const recentLayers = getRecentLayers(2);
         if(checkSlipperyStack(recentLayers)){
-          extra_score += 3;
-          bonusHistory.push({ type: "Slippery", points: 3, index: layerStack.length - 1 });
-          showExtraPoints(3, "Slippery");
+          updateBasedOnBonusCombo(3, "Slippery", layerStack.length - 1);
+        }
+      }else if(tag === "mayo"){
+        const recentLayers = getRecentLayers(2);
+        if(checkSlipperyStack(recentLayers)){
+          updateBasedOnBonusCombo(3, "Slippery", layerStack.length - 1);
+        }
+      }else if(tag === "ketchup"){
+        const recentLayers = getRecentLayers(2);
+        if(checkSlipperyStack(recentLayers)){
+          updateBasedOnBonusCombo(3, "Slippery", layerStack.length - 1);
         }
       }
     }
