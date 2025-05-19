@@ -457,7 +457,8 @@ document.getElementById("popup-rank-ok-btn").addEventListener("click", (e) => {
 
 
 
-document.getElementById("newGame-btn").addEventListener("click", () => {
+document.getElementById("newGame-btn").addEventListener("click", (e) => {
+    e.stopPropagation(); 
     inGame = true;
     free_play_mode = false;
 
@@ -467,7 +468,8 @@ document.getElementById("newGame-btn").addEventListener("click", () => {
 });
 
 
-document.getElementById("pause-btn").addEventListener("click", () => {
+document.getElementById("pause-btn").addEventListener("click", (e) => {
+    e.stopPropagation(); 
     if (free_play_mode) return; 
 
     if (!pause_game) {
