@@ -168,7 +168,9 @@ function showExtraPoints(points, type) {
 export function undoLastLayer() {
   if (!inGame) return;
 
-  if (layerStack.length === 0) return;
+  if (layerStack.length === 0){
+    return;
+  }
 
   const last = layerStack.pop();    // get the most recently added layer
 
@@ -236,6 +238,7 @@ function updateBasedOnBonusCombo(bonus_pts, bonus_type, stackLayer_index){
   bonusHistory.push({ type: bonus_type, points: bonus_pts, index: stackLayer_index });
   showExtraPoints(bonus_pts, bonus_type);
   addPoints(bonus_pts);
+
   updatePointsDisplay(bonus_pts);
 }
 

@@ -319,7 +319,7 @@ document.getElementById('undo-btn').addEventListener('click', (e) => {
     e.stopPropagation();
     const removedPts = undoLastLayer();
 
-    if(removedPts && inGame){
+    if(removedPts){
       addPoints(removedPts * -1);
       updatePointsDisplay();
     }
