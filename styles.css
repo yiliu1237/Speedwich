@@ -26,6 +26,9 @@ html, body {
   width: 100vw;
   height: 110vh;
   z-index: -1;
+  user-select: none;         /* Prevent text/image selection */
+  -webkit-user-drag: none;   /* Prevent image drag in Safari/Chrome */
+  -webkit-user-select: none; /* Safari fallback */
   pointer-events: none;
 }
 
@@ -192,12 +195,11 @@ html, body {
 }
 
 
-img, .bg-ingredient, .ingredient-layer * {
-  user-select: none !important;
-  -webkit-user-drag: none !important;
-  -webkit-touch-callout: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
+img, .bg-ingredient, .ingredient-layer {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none; 
+  pointer-events: auto;
 }
 
 
@@ -398,6 +400,10 @@ img, .bg-ingredient, .ingredient-layer * {
 .hidden {
   opacity: 0;
   visibility: hidden;
+}
+
+.hidden-remove {
+  display: none !important;
 }
 
 .order-popup.visible {
@@ -755,6 +761,154 @@ body.game-blocked *:not(#start-screen):not(#start-screen *):not(#rules-screen):n
 #settings-menu input[type="range"]:focus {
   background: #cbb79c;
 }
+
+
+
+
+
+.popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff8e1;
+  border: 2px solid #5a3b20;
+  border-radius: 1rem;
+  padding: 2rem;
+  z-index: 5000;
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.25);
+}
+
+.popup.hidden {
+  display: none;
+}
+
+.popup-score-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Lobster', cursive;
+  color: #5a3b20;
+}
+
+.popup-score-content input {
+  margin-top: 1rem;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+}
+
+
+#score-popup .popup-score-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+#score-popup .popup-score-content button {
+  font-family: 'Lobster', cursive;
+  font-size: 1.1rem;
+  padding: 0.5rem 1.2rem;
+  background-color: #fff3e0;
+  border: 2px solid #5a3b20;
+  border-radius: 12px;
+  color: #5a3b20;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 0.5rem;
+  min-width: 160px;
+}
+
+
+#score-popup .popup-score-content button:hover {
+  background-color: #ffe0b2;
+  transform: scale(1.05);
+}
+
+
+
+#popup-rank-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.2rem;
+}
+
+#popup-rank-buttons button {
+  font-family: 'Lobster', cursive;
+  font-size: 1.1rem;
+  padding: 0.5rem 1.2rem;
+  background-color: #fff3e0;
+  border: 2px solid #5a3b20;
+  border-radius: 12px;
+  color: #5a3b20;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+  text-align: center;
+}
+
+#popup-rank-buttons button:hover {
+  background-color: #ffe0b2;
+  transform: scale(1.05);
+}
+
+
+/***********  RANK LIST *************/
+
+#rank-title {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+  font-family: 'Lobster', cursive;
+  color: #5a3b20;
+  text-align: center;
+}
+
+#rank-list {
+  margin-top: 0.5rem;
+  padding: 0;
+  list-style: none;
+  font-family: 'Lobster', cursive;
+  font-size: 1.1rem;
+  color: #5a3b20;
+}
+
+#rank-list li {
+  margin: 0.2rem 0;
+}
+
+
+/***********  END GAME *************/
+#popup-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+#popup-buttons button {
+  font-family: 'Lobster', cursive;
+  background-color: #f9dfc7;
+  border: 2px solid #5a3b20;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #5a3b20;
+  transition: background-color 0.2s;
+}
+
+#popup-buttons button:hover {
+  background-color: #ffe6cc;
+}
+
+
 
 
 

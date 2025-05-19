@@ -103,17 +103,16 @@
       <p id="orders-completed-text">Orders Completed: 0</p>
       <p id="total-points-text">Total Coins: 0</p>
       <div class="popup-buttons">
-        <button id="popup-ok-btn">OK</button>
+        <button id="popup-save-btn">Save Score</button>
         <button id="popup-restart-btn">Restart</button>
+        <button id="popup-ok-btn">OK</button>
       </div>
     </div>
   </div>
 
   <div class="scene">
     <sandwich> </sandwich>
-
     <img src="images/background1.png" class="background-img" />
-
     <div class="ingredient-layer">
       <img class="bg-ingredient tomatoes" src="images/tomato.png" data-tag="tomato"/>
       <img class="bg-ingredient lettuces" src="images/lettuce.png" data-tag="lettuce"/>
@@ -134,7 +133,6 @@
     <img class="orders" src="images/order.png" id="order2"/> 
     <img class="orders" src="images/order.png" id="order3"/> 
 
-
     <div id="order-popup" class="order-popup hidden">
       <div class="order-scroll-wrapper" id="order-scroll-wrapper">
         <div id="order-text">Order details will go here</div>
@@ -148,11 +146,31 @@
   </div>
 
 
+  <div id="score-popup" class="popup hidden-remove">
+    <div class="popup-score-content">
+      <p id="popup-message">Saving your score...</p>
+      <input id="player-name-input" class="hidden-remove" type="text" placeholder="Enter your name" />
+      <button id="popup-confirm-btn" class="hidden-remove">Confirm</button>
+      <button id="popup-random-btn" class="hidden-remove">Use Random Name</button>
 
+      <h3 id="rank-title" class="hidden-remove">🏆 Top Scores</h3>
+      <ul id="rank-list" class="hidden-remove"></ul>
+  
+      <div id="popup-rank-buttons" class="hidden-remove">
+        <button id="popup-rank-restart-btn">Restart Game</button>
+        <button id="popup-rank-ok-btn">OK</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="coins.js"></script>
   <script type="module" src="orders.js"></script>
   <script type="module" src="sandwich.js"></script>
   <script type="module" src="audio.js"></script>
   <script type="module" src="main.js"></script>
+  <script type="module" src="scoreboard.js"></script>
 </body>
 </html>

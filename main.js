@@ -6,7 +6,7 @@ import {getPoints, addPoints, updatePointsDisplay, resetPoints} from './coins.js
 
 import {  playMusic, stopMusic, toggleMusic, isMusicOn, playUIClick, playSubmitOrderSound, playTimeUpSound } from './audio.js';
 
-
+import { submitScore, getOrGenerateName, fetchTopScores } from './scoreboard.js';
 
 
 const popup = document.getElementById('order-popup');
@@ -353,6 +353,117 @@ document.getElementById("popup-restart-btn").addEventListener("click", (e) => {
 
     playUIClick();
 });
+
+
+
+
+document.getElementById("popup-save-btn").addEventListener("click", async (e) => {
+  console.log("popup-save-btn pressed");
+  e.stopPropagation();
+  playUIClick();
+
+
+  const gameOverPop = document.getElementById("game-over-popup");
+  gameOverPop.classList.add("hidden");
+
+
+  const popup = document.getElementById("score-popup");
+  const message = document.getElementById("popup-message");
+  const input = document.getElementById("player-name-input");
+  const confirmBtn = document.getElementById("popup-confirm-btn");
+  const randomBtn = document.getElementById("popup-random-btn");
+  const rankListTitle = document.getElementById("rank-title");
+  const rankList = document.getElementById("rank-list");
+
+  const rankButtons =  document.getElementById("popup-rank-buttons");
+
+  popup.classList.remove("hidden-remove");
+  rankListTitle.classList.add("hidden-remove");
+  rankList.classList.add("hidden-remove");
+
+  const storedName = localStorage.getItem("playerName");
+
+  if (!storedName) {
+    message.textContent = "Enter your name to save your score:";
+    input.classList.remove("hidden-remove");
+    confirmBtn.classList.remove("hidden-remove");
+    randomBtn.classList.remove("hidden-remove");
+
+    confirmBtn.onclick = async () => {
+      const name = input.value.trim();
+      if (!name) return alert("Please enter a name.");
+      localStorage.setItem("playerName", name);
+      await saveAndShow(name);
+    };
+
+
+    randomBtn.onclick = async () => {
+      const name = getOrGenerateName();
+      localStorage.setItem("playerName", name);
+      await saveAndShow(name);
+    };
+
+  } else {
+    await saveAndShow(storedName);
+  }
+
+  async function saveAndShow(name) {
+    input.classList.add("hidden-remove");
+    confirmBtn.classList.add("hidden-remove");
+    randomBtn.classList.add("hidden-remove");
+
+    const score = getPoints(); // or however your current score is tracked
+    await submitScore(name, score);
+
+    message.textContent = `Score saved for ${name}!`;
+
+    rankButtons.classList.remove("hidden-remove");    
+
+    const scores = await fetchTopScores();
+
+    console.log("Leaderboard scores:", scores);
+    rankList.innerHTML = scores.map((s, i) => 
+      `<li>#${i + 1} ${s.player_name || '—'}: ${s.score ?? 0}</li>`
+    ).join('');
+    rankList.classList.remove("hidden-remove");
+    rankListTitle.classList.remove("hidden-remove");
+  }
+});
+
+
+
+
+document.getElementById("popup-rank-restart-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  inGame = true;
+  resetGame();
+
+  const rankPop = document.getElementById("score-popup");
+  rankPop.classList.add("hidden-remove");
+
+
+  free_play_mode = false;
+
+  playUIClick();
+});
+
+
+
+document.getElementById("popup-rank-ok-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  hidePopup();
+  const rankPop = document.getElementById("score-popup");
+  rankPop.classList.add("hidden-remove");
+  inGame = false;
+  resetGame();
+
+  free_play_mode = true;
+  changeGameState(free_play_mode);
+});
+
+
+
 
 
 document.getElementById("newGame-btn").addEventListener("click", () => {
