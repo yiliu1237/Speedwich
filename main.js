@@ -309,8 +309,6 @@ document.getElementById('cancel-btn').addEventListener('click', (e) => {
             fadeInOrder(temp);
         });
     }
-
-    playUIClick();
 });
   
 
@@ -339,8 +337,6 @@ document.getElementById("popup-ok-btn").addEventListener("click", (e) => {
 
     free_play_mode = true;
     changeGameState(free_play_mode);
-
-    playUIClick();
 });
   
 
@@ -350,8 +346,6 @@ document.getElementById("popup-restart-btn").addEventListener("click", (e) => {
     resetGame();
 
     free_play_mode = false;
-
-    playUIClick();
 });
 
 
@@ -360,7 +354,6 @@ document.getElementById("popup-restart-btn").addEventListener("click", (e) => {
 document.getElementById("popup-save-btn").addEventListener("click", async (e) => {
   console.log("popup-save-btn pressed");
   e.stopPropagation();
-  playUIClick();
 
 
   const gameOverPop = document.getElementById("game-over-popup");
@@ -443,8 +436,6 @@ document.getElementById("popup-rank-restart-btn").addEventListener("click", (e) 
 
 
   free_play_mode = false;
-
-  playUIClick();
 });
 
 
@@ -473,15 +464,11 @@ document.getElementById("newGame-btn").addEventListener("click", () => {
     changeGameState(inGame);
     resetGame();
 
-    playUIClick();
-
 });
 
 
 document.getElementById("pause-btn").addEventListener("click", () => {
     if (free_play_mode) return; 
-
-    playUIClick();
 
     if (!pause_game) {
       pause_game = true;
@@ -589,7 +576,6 @@ settingsMenuButtons.forEach(btn => {
     }
   });
 
-  playUIClick();
 });
 
 
