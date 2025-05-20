@@ -379,10 +379,16 @@ document.getElementById("popup-save-btn").addEventListener("click", async (e) =>
   if (!storedName) {
     message.textContent = "Enter your name to save your score:";
     input.classList.remove("hidden-remove");
+    
+    input.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
     confirmBtn.classList.remove("hidden-remove");
     randomBtn.classList.remove("hidden-remove");
 
-    confirmBtn.onclick = async () => {
+    confirmBtn.onclick = async (e) => {
+      e.stopPropagation();
       const name = input.value.trim();
       if (!name) return alert("Please enter a name.");
       localStorage.setItem("playerName", name);
@@ -390,7 +396,8 @@ document.getElementById("popup-save-btn").addEventListener("click", async (e) =>
     };
 
 
-    randomBtn.onclick = async () => {
+    randomBtn.onclick = async (e) => {
+      e.stopPropagation();
       const name = getOrGenerateName();
       localStorage.setItem("playerName", name);
       await saveAndShow(name);

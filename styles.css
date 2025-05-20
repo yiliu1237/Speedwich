@@ -396,6 +396,16 @@ img, .bg-ingredient, .ingredient-layer {
   text-align: left;
 }
 
+#popup-message{
+  font-family: 'Lobster', cursive;
+  font-size: 1.8vw; 
+}
+
+#player-name-input{
+  font-family: 'Lobster', cursive;
+  margin-bottom: 1.5rem;
+}
+
 
 .hidden {
   opacity: 0;
@@ -761,8 +771,6 @@ body.game-blocked *:not(#start-screen):not(#start-screen *):not(#rules-screen):n
 #settings-menu input[type="range"]:focus {
   background: #cbb79c;
 }
-
-
 
 
 
@@ -1150,7 +1158,7 @@ sandwich ham:nth-child(odd) {
   Lettuce style is from https://codepen.io/_fbrz/pen/rNqrWx
 *********/
 sandwich lettuce {
-  background: #44ae33;
+  background: #45a336;
   border-radius: 0;
   box-shadow: inset #73e462 0 0 60px;
   display: block;
@@ -1163,7 +1171,7 @@ sandwich lettuce {
 
 
 sandwich lettuce:before {
-  background: linear-gradient(to bottom, #47b537, #4ec23c);
+  background: linear-gradient(to bottom, #45a336, #4ec23c);
   border-top-right-radius: 30px;
   border-bottom-right-radius: 30px;
   box-shadow:
@@ -1182,7 +1190,7 @@ sandwich lettuce:before {
 
 
 sandwich lettuce:after {
-  background: #47b537;
+  background: #45a336;
   clip-path: polygon(
     0% 0%, 100% 0%, 
     95% 10%, 100% 20%,
