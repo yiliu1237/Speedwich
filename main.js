@@ -582,8 +582,56 @@ settingsMenuButtons.forEach(btn => {
 
 
 
+
+
+function positionSandwich() {
+  const referenceTop = 323;
+  const referenceLeft = 162;
+
+  const cuttingBoard = document.querySelector('.cutting_board');
+  const wrapper = document.getElementById('sandwich-wrapper');
+  const sandwich = document.getElementById('sandwich');
+
+  if (!cuttingBoard || !sandwich) return;
+
+  const boardRect = cuttingBoard.getBoundingClientRect();
+
+  // Calculate how much the cutting board has moved
+
+  console.log(`boardRect.left: ${boardRect.left}px`);
+  console.log(`boardRect.top: ${boardRect.top}px`);
+
+  const deltaX = boardRect.left - referenceLeft;
+  const deltaY = boardRect.top - referenceTop;
+
+  console.log(deltaX, deltaY);
+
+  // Apply that shift to the sandwich using transform
+  wrapper.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+
+  if (sandwich && cuttingBoard) {
+    const sandwichLeft = sandwich.getBoundingClientRect().left;
+    const boardLeft = cuttingBoard.getBoundingClientRect().left;
+
+    console.log(`Sandwich left: ${sandwichLeft}px`);
+    console.log(`Cutting board left: ${boardLeft}px`);
+    console.log(`Cutting board top: ${cuttingBoard.getBoundingClientRect().top}px`);
+  } else {
+    console.warn('One or both elements not found.');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', positionSandwich);
+
+
 window.addEventListener('resize', () => {
     if (currentFocused) {
       showPopup(currentFocused, orderDescription[currentFocused.id], true);
     }
+
+    positionSandwich();
 });
+
+
+

@@ -911,6 +911,13 @@ body.game-blocked *:not(#start-screen):not(#start-screen *):not(#rules-screen):n
 
 
 
+#sandwich-wrapper {
+  position: absolute;
+  top: 65%;       
+  left: 42%;     
+  transform-origin: top left;
+  z-index: 200;
+}
 
 
 sandwich {
@@ -919,9 +926,7 @@ sandwich {
     height: 300px;
     width: 300px;
     perspective: 800px;
-    position: absolute;
-    top: 60%;
-    left: 40%;
+    transform-origin: top left;
     z-index: 200;
 }
 
