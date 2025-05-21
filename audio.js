@@ -107,12 +107,23 @@ function playSELoop() {
 const submitOrderSound = new Audio('assets/audio/SE/orderSubmit.mp3');
 submitOrderSound.volume = 0.4;
 
-function playSubmitOrderSound() {
-    submitOrderSound.currentTime = 0;
-    submitOrderSound.play();
+// function playSubmitOrderSound() {
+//     submitOrderSound.currentTime = 0;
+//     submitOrderSound.play();
 
-    console.log("playSubmitOrderSound played");
+//     console.log("playSubmitOrderSound played");
+// }
+
+function playSubmitOrderSound() {
+  const sfx = submitOrderSound.cloneNode(); // make a new sound each time
+  sfx.volume = sfxVolume;
+  sfx.play().catch((e) => {
+    console.warn("submitOrderSound failed to play:", e);
+  });
+
+  console.log("playSubmitOrderSound played");
 }
+
 
 
 const timeUpSound = new Audio('assets/audio/SE/timeUp.mp3');
@@ -130,19 +141,29 @@ const uiClickSound = new Audio('assets/audio/SE/UIButtons.mp3');
 uiClickSound.volume = 0.4;
 
 function playUIClick() {
-  uiClickSound.currentTime = 0;
-  uiClickSound.play();
+  const sfx = uiClickSound.cloneNode(); // make a new sound each time
+  sfx.volume = sfxVolume;
+  sfx.play().catch((e) => {
+    console.warn("uiClickSound failed to play:", e);
+  });
 
-  console.log("playUIClick!");
+  console.log("uiClickSound played");
 }
+
 
 
 const bonusSound = new Audio('assets/audio/SE/bonus.mp3');
 bonusSound.volume = 0.4;
 
+
 function playBonusClick() {
-    bonusSound.currentTime = 0;
-    bonusSound.play();
+  const sfx = bonusSound.cloneNode(); // make a new sound each time
+  sfx.volume = sfxVolume;
+  sfx.play().catch((e) => {
+    console.warn("bonusSound failed to play:", e);
+  });
+
+  console.log("bonusSound played");
 }
 
 
