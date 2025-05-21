@@ -973,7 +973,7 @@ body.game-blocked *:not(#start-screen):not(#start-screen *):not(#rules-screen):n
 
 #sandwich-wrapper {
   position: absolute;
-  top: 62%;       
+  top: 60%;       
   left: 42%;     
   transform-origin: top left;
   z-index: 200;
