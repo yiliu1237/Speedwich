@@ -1,6 +1,6 @@
-# Stackwich: A Sandwich-Making Web Game
+# Speedwich: A Sandwich-Making Web Game
 
-**Stackwich** is an interactive browser-based game where players build custom sandwiches by clicking ingredients, completing orders, and racing against the clock to earn coins.
+**Speedwich** is an interactive browser-based game where players build custom sandwiches by clicking ingredients, completing orders, and racing against the clock to earn coins.
 
 ---
 
@@ -19,7 +19,7 @@
 
 ## Demo
 
-<img src="demo/demo_video.gif" alt="Stackwich gameplay demo" width="800"/>
+<img src="demo/demo_video.gif" alt="Speedwich gameplay demo" width="800"/>
 
 
 ---
