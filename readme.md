@@ -19,7 +19,7 @@
 
 ## Demo
 
-<img src="https://raw.githubusercontent.com/yiliu1237/Stackwich/main/demo/demo_gif.gif" alt="Stackwich gameplay demo" width="800"/>
+<img src="demo/demo_gif.gif" alt="Stackwich gameplay demo" width="800"/>
 
 
 ---

@@ -121,7 +121,7 @@ async function submitScore(player_name, newScore, newNumOrders) {
     localStorage.setItem("player_id", player_id);
   }
 
-  // If we just renamed the player, skip resaving
+  // renamed the player, skip resaving
   if (rename_status) {
     rename_status = false;
     return;
@@ -146,7 +146,7 @@ async function submitScore(player_name, newScore, newNumOrders) {
   }
 
   if (!existing) {
-    // No existing row found — insert a new one
+    // No existing row found, insert a new one
     const { error: insertError } = await supabase
       .from('scores')
       .insert([{

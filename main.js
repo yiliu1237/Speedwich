@@ -261,7 +261,7 @@ document.querySelectorAll('.orders').forEach(order => {
     });
 
 
-    // Click: toggle focus
+    // toggle focus
     order.addEventListener('click', () => {
         if (order_changing) return; 
 
