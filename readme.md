@@ -28,6 +28,8 @@
 
 - Animated ingredient stacking
 - Real-time scoring and feedback
+- Score saving and leaderboard tracking
+- Viewable top player rankings after each game
 - Undo functionality
 - Pause/resume system with timer handling
 - Randomized order generation with visual order sheets
