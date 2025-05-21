@@ -1,12 +1,12 @@
-import { clearSandwich, undoLastLayer, changeGameState, getCurrentSandwich, resetExtraScore} from './sandwich.js';
+import { clearSandwich, undoLastLayer, changeGameState, getCurrentSandwich} from './sandwich.js';
 import { startTimer, resetTimer, stopTimer } from './timer.js';
-import { generateOrder, scoreSandwich} from './orders.js';
-import {getPoints, addPoints, updatePointsDisplay, resetPoints} from './coins.js';
+import { generateOrder, scoreSandwich, checkRainbowLayer, checkSymmetryStack } from './orders.js';
+import { getPoints, addPoints, updatePointsDisplay, resetPoints } from './coins.js';
 
 
 import {  playMusic, stopMusic, toggleMusic, isMusicOn, playUIClick, playSubmitOrderSound, playTimeUpSound } from './audio.js';
 
-import { submitScore, getOrGenerateName, fetchTopScores } from './scoreboard.js';
+import { supabase, submitScore, getOrGenerateName, fetchTopScores, setRenameStatus, renamePlayerInDatabase } from './scoreboard.js';
 
 
 const popup = document.getElementById('order-popup');
@@ -92,11 +92,22 @@ function submitOrder(orderEl) {
     const score = scoreSandwich(order, sandwich).score;
     const feedback = scoreSandwich(order, sandwich).feedback;
 
+    let rainbowLayer = checkRainbowLayer(sandwich);
+    let symmetricLayer = checkSymmetryStack(sandwich);
+
+    if(symmetricLayer){
+      symmetricLayer_Message();
+      addPoints(score);
+    }
+    else if(rainbowLayer){
+      rainbowLayer_Message();
+      addPoints(5);
+    }
+
     addPoints(score);
     updatePointsDisplay();
 
     clearSandwich();
-    resetExtraScore();
 
     //unfocus the old order
     currentFocused = null;
@@ -207,7 +218,6 @@ function resetGame() {
     ordersCompleted = 0;
   
     clearSandwich();
-    resetExtraScore();
 
     popup.style.pointerEvents = 'none'; // avoid flikering
   
@@ -351,10 +361,10 @@ document.getElementById("popup-restart-btn").addEventListener("click", (e) => {
 
 
 
+
 document.getElementById("popup-save-btn").addEventListener("click", async (e) => {
   console.log("popup-save-btn pressed");
   e.stopPropagation();
-
 
   const gameOverPop = document.getElementById("game-over-popup");
   gameOverPop.classList.add("hidden");
@@ -367,14 +377,15 @@ document.getElementById("popup-save-btn").addEventListener("click", async (e) =>
   const randomBtn = document.getElementById("popup-random-btn");
   const rankListTitle = document.getElementById("rank-title");
   const rankList = document.getElementById("rank-list");
-
   const rankButtons =  document.getElementById("popup-rank-buttons");
+
+  const renameButton =  document.getElementById("popup-rename-btn");
 
   popup.classList.remove("hidden-remove");
   rankListTitle.classList.add("hidden-remove");
   rankList.classList.add("hidden-remove");
 
-  const storedName = localStorage.getItem("playerName");
+  const storedName = localStorage.getItem("player_name");
 
   if (!storedName) {
     message.textContent = "Enter your name to save your score:";
@@ -391,7 +402,29 @@ document.getElementById("popup-save-btn").addEventListener("click", async (e) =>
       e.stopPropagation();
       const name = input.value.trim();
       if (!name) return alert("Please enter a name.");
-      localStorage.setItem("playerName", name);
+
+      // Check if this name already exists
+      const { data: existing, error } = await supabase
+        .from('scores')
+        .select('id')
+        .eq('player_name', name)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking name:", error.message);
+        return;
+      }
+
+      if (existing) {
+        alert("This name is already taken. Please choose another one.");
+        return;
+      }
+
+      localStorage.setItem("player_name", name);
+      localStorage.setItem("is_random", "false");
+
+      localStorage.setItem("player_id", crypto.randomUUID());
+
       await saveAndShow(name);
     };
 
@@ -399,7 +432,7 @@ document.getElementById("popup-save-btn").addEventListener("click", async (e) =>
     randomBtn.onclick = async (e) => {
       e.stopPropagation();
       const name = getOrGenerateName();
-      localStorage.setItem("playerName", name);
+      localStorage.setItem("player_name", name);
       await saveAndShow(name);
     };
 
@@ -411,16 +444,17 @@ document.getElementById("popup-save-btn").addEventListener("click", async (e) =>
     input.classList.add("hidden-remove");
     confirmBtn.classList.add("hidden-remove");
     randomBtn.classList.add("hidden-remove");
-
+  
     const score = getPoints(); // or however your current score is tracked
     await submitScore(name, score);
-
+  
     message.textContent = `Score saved for ${name}!`;
-
-    rankButtons.classList.remove("hidden-remove");    
-
+  
+    rankButtons.classList.remove("hidden-remove");  
+    renameButton.classList.remove("hidden-remove");  
+  
     const scores = await fetchTopScores();
-
+  
     console.log("Leaderboard scores:", scores);
     rankList.innerHTML = scores.map((s, i) => 
       `<li>#${i + 1} ${s.player_name || '—'}: ${s.score ?? 0}</li>`
@@ -428,6 +462,92 @@ document.getElementById("popup-save-btn").addEventListener("click", async (e) =>
     rankList.classList.remove("hidden-remove");
     rankListTitle.classList.remove("hidden-remove");
   }
+  
+});
+
+
+
+
+async function handleRename() {
+  setRenameStatus(true);
+
+  const message = document.getElementById("popup-message");
+  const input = document.getElementById("player-name-input");
+  const confirmBtn = document.getElementById("popup-confirm-btn");
+  const randomBtn = document.getElementById("popup-random-btn");
+  const rankListTitle = document.getElementById("rank-title");
+  const rankList = document.getElementById("rank-list");
+  const rankButtons = document.getElementById("popup-rank-buttons");
+
+  const renameButton =  document.getElementById("popup-rename-btn");
+
+  // Hide rank and buttons
+  rankListTitle.classList.add("hidden-remove");
+  rankList.classList.add("hidden-remove");
+  rankButtons.classList.add("hidden-remove");
+
+  renameButton.classList.add("hidden-remove");
+
+  // Show name entry UI
+  message.textContent = "Enter your new name:";
+  input.classList.remove("hidden-remove");
+  confirmBtn.classList.remove("hidden-remove");
+  randomBtn.classList.remove("hidden-remove");
+
+  input.value = ""; // clear input for new entry
+  input.focus();
+
+  // Ensure input click doesn't close the popup
+  input.addEventListener("click", (e) => e.stopPropagation());
+
+  // Replace confirm button behavior
+  confirmBtn.onclick = async (e) => {
+    e.stopPropagation();
+    const name = input.value.trim();
+    if (!name) return alert("Please enter a name.");
+
+    await renamePlayerInDatabase(name);
+    await renameAndShow(name);
+
+    // Save new name
+    localStorage.setItem("player_name", name);
+    localStorage.setItem("is_random", "false");
+  };
+
+
+  randomBtn.onclick = async (e) => {
+    e.stopPropagation();
+    const name = getOrGenerateName(); 
+
+    await renamePlayerInDatabase(name);
+    await renameAndShow(name);
+  };
+
+  async function renameAndShow(name) {
+    input.classList.add("hidden-remove");
+    confirmBtn.classList.add("hidden-remove");
+    randomBtn.classList.add("hidden-remove");
+  
+    message.textContent = `Player renamed successfully.`;
+  
+    rankButtons.classList.remove("hidden-remove");  
+    renameButton.classList.remove("hidden-remove");  
+  
+    const scores = await fetchTopScores();
+  
+    console.log("Leaderboard scores:", scores);
+    rankList.innerHTML = scores.map((s, i) => 
+      `<li>#${i + 1} ${s.player_name || '—'}: ${s.score ?? 0}</li>`
+    ).join('');
+    rankList.classList.remove("hidden-remove");
+    rankListTitle.classList.remove("hidden-remove");
+  }
+}
+
+
+document.getElementById("popup-rename-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  handleRename();
 });
 
 
@@ -587,6 +707,43 @@ settingsMenuButtons.forEach(btn => {
 
 });
 
+
+
+
+function rainbowLayer_Message() {
+  const container = document.getElementById('bonus-text-container');
+  const msg = document.createElement('div');
+
+  msg.className = 'bonus-float';
+  msg.innerText = "Rainbow Layers (+5)!";
+
+  // Apply a rainbow gradient directly via JS
+  msg.style.background = 'linear-gradient(to right, #ff7f7f, #ffb84d, #ffe066, #7bdcb5, #57c7ff, #a087ff)';
+  msg.style.webkitBackgroundClip = 'text';
+  msg.style.webkitTextFillColor = 'transparent';
+  msg.style.color = 'transparent'; // just to be safe
+
+  container.innerHTML = ''; // Clear previous bonus if needed
+  container.appendChild(msg);
+
+}
+
+function symmetricLayer_Message() {
+  const container = document.getElementById('bonus-text-container');
+  const msg = document.createElement('div');
+
+  msg.className = 'bonus-float';
+  msg.innerText = "Symmetric Layers (×2)!";
+
+  msg.style.background = 'linear-gradient(to right, #f87171, #fdba74, #fef08a, #ffffff, #fef08a, #fdba74, #f87171)';
+  msg.style.webkitBackgroundClip = 'text';
+  msg.style.webkitTextFillColor = 'transparent';
+  msg.style.color = 'transparent'; 
+
+  container.innerHTML = ''; 
+  container.appendChild(msg);
+
+}
 
 
 

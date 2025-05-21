@@ -52,8 +52,10 @@
           <span class="ingredient mayo">Mayo</span> or
           <span class="ingredient ketchup">Ketchup</span>
         </li>
-        <li><strong>Rainbow Stack (5 pts):</strong> At least 5 different non-<span class="ingredient bread">Bread</span> ingredients</li>
         <li><strong>Symmetry Stack (×2):</strong> Stack reads the same forwards and backwards</li>
+        <li><strong>Rainbow Stack (5 pts):</strong> At least 5 different non-<span class="ingredient bread">Bread</span> ingredients</li>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 1rem; color: #5a3b20;">
+          <em>Note: A sandwich can only trigger either <strong>Rainbow Stack</strong> or <strong>Symmetry Stack</strong>, not both at the same time.</em></p>
       </ul>
 
       <p><strong>Penalties:</strong></p>
@@ -70,6 +72,8 @@
 
 
   <div id="top-bar">
+    <div id="bonus-text-container"></div>
+
     <div id="points-counter">Coins: 0</div>
     <div id="settings-container">
       <button id="settings-button">⚙️ Settings</button>
@@ -164,6 +168,8 @@
         <button id="popup-rank-restart-btn">Restart Game</button>
         <button id="popup-rank-ok-btn">OK</button>
       </div>
+
+      <button id="popup-rename-btn" class="rename-button hidden-remove">Click Here to Rename</button>
 
     </div>
   </div>

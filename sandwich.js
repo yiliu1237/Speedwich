@@ -1,10 +1,10 @@
 import {checkBLTClassic, checkMeatyMelt, checkGardenFresh, checkTomatomanic, 
   checkGreenOverload, checkSlipperyStack} from './orders.js';
 
-import {getPoints, addPoints, updatePointsDisplay, resetPoints} from './coins.js';
+import {addPoints, updatePointsDisplay} from './coins.js';
 
 
-import {  playBonusClick } from './audio.js';
+import { playBonusClick } from './audio.js';
 
 
 
@@ -36,7 +36,6 @@ let layerStack = [];
 let inGame = true;
 
 
-let extra_score = 0;
 let bonusHistory = [];
 
 
@@ -190,8 +189,6 @@ export function undoLastLayer() {
   // Remove bonuses that were associated with that top layer
   bonusHistory = bonusHistory.filter(bonus => {
     if (bonus.index === lastIndex) {
-      extra_score -= bonus.points;
-
       console.log("bonus.points: ", bonus.points);
       removedPts = bonus.points;
       console.log(`Undo bonus: -${bonus.points}pts for ${bonus.type}`);
@@ -219,11 +216,6 @@ export function getCurrentSandwich() {
 }
 
 
-export function resetExtraScore() {
-  extra_score = 0;
-}
-
-
 
 function getRecentLayers(n) {
   const current = getCurrentSandwich();
@@ -234,7 +226,6 @@ function getRecentLayers(n) {
 function updateBasedOnBonusCombo(bonus_pts, bonus_type, stackLayer_index){
   playBonusClick();
 
-  extra_score += bonus_pts;
   bonusHistory.push({ type: bonus_type, points: bonus_pts, index: stackLayer_index });
   showExtraPoints(bonus_pts, bonus_type);
   addPoints(bonus_pts);
@@ -377,5 +368,3 @@ document.addEventListener('DOMContentLoaded', () => {
   
 });
 
-
-export {extra_score};

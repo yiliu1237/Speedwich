@@ -161,6 +161,38 @@ html, body {
 
 
 
+#bonus-text-container {
+  position: absolute;
+  top: 4vh;
+  right: 12vw;
+  z-index: 3000;
+  pointer-events: none;
+}
+
+.bonus-float {
+  font-size: 3rem;
+  font-family: 'Lobster', cursive;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: 2px 2px #00000033;
+
+  position: relative;
+  opacity: 0;
+  transform: translateY(0px);
+  animation: floatBonus 2.6s ease-out forwards;
+  white-space: nowrap;
+  pointer-events: none;
+}
+  
+@keyframes floatBonus {
+  0%   { opacity: 0; transform: translateY(0); }
+  10%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+
+
 .ingredient-layer {
   position: absolute;
   top: 0; left: 0;
@@ -400,6 +432,26 @@ img, .bg-ingredient, .ingredient-layer {
   font-family: 'Lobster', cursive;
   font-size: 1.8vw; 
 }
+
+.rename-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 10px;
+  font-size: 0.9rem;
+  font-family: 'Lobster', cursive;
+  color: #8c4c00;
+  text-decoration: underline;
+  cursor: pointer;
+  font-style: italic;
+}
+
+.rename-button:hover {
+  color: #c75c00;
+  text-decoration: underline;
+}
+
+
 
 #player-name-input{
   font-family: 'Lobster', cursive;
@@ -814,7 +866,7 @@ body.game-blocked *:not(#start-screen):not(#start-screen *):not(#rules-screen):n
 }
 
 
-#score-popup .popup-score-content button {
+#score-popup .popup-score-content button:not(.rename-button) {
   font-family: 'Lobster', cursive;
   font-size: 1.1rem;
   padding: 0.5rem 1.2rem;
@@ -830,7 +882,7 @@ body.game-blocked *:not(#start-screen):not(#start-screen *):not(#rules-screen):n
 }
 
 
-#score-popup .popup-score-content button:hover {
+#score-popup .popup-score-content button:not(.rename-button):hover {
   background-color: #ffe0b2;
   transform: scale(1.05);
 }
@@ -944,29 +996,49 @@ sandwich * {
 }
 
 
+/* layering separate shadows, each at a slightly lower position and with slightly darker colors.*/
 sandwich bread {
-    background: #F2DAB8;
-    border-radius: 20px;
-    /* layering 13 separate shadows, each at a slightly lower position and with slightly darker colors.*/
-    box-shadow: inset #A87A55 0 0 27px 8px,  
-                #A56C40 0 4px 0 -1px, 
-                #A06A41 0 8px 0 -2px, 
-                #A2704A 0 12px 0 -3px,
-                #A3693D 0 16px 0 -4px, 
-                #A37049 0 20px 0 -5px, 
-                #A86F42 0 24px 0 -6px, 
-                #9E6E48 0 28px 0 -7px, 
-                #9C663C 0 32px 0 -8px, 
-                #946139 0 35px 0 -9px, 
-                #8B5D38 0 38px 0 -10px, 
-                #8D603D 0 42px 0 -11px, 
-                #9C673D 0 45px 0 -12px;
-    display: block;
-    height: 300px;
-    width: 300px;
-    position: absolute;
-    transform: rotateX(71deg); 
+  background: #f8e7c1;
+  border-radius: 20px;
+  box-shadow: inset #d2a56b 0 0 27px 8px,  
+              #c89965 0 4px 0 -1px, 
+              #c18f5b 0 8px 0 -2px, 
+              #bb864e 0 12px 0 -3px,
+              #b57d45 0 16px 0 -4px, 
+              #af753e 0 20px 0 -5px, 
+              #aa6e3a 0 24px 0 -6px, 
+              #a06636 0 28px 0 -7px, 
+              #996131 0 32px 0 -8px, 
+              #925b2d 0 35px 0 -9px, 
+              #8b562a 0 38px 0 -10px, 
+              #855027 0 42px 0 -11px, 
+              #804c24 0 45px 0 -12px;
+  display: block;
+  height: 300px;
+  width: 300px;
+  position: absolute;
+  transform: rotateX(71deg); 
 }
+
+
+
+/* slightly puffed */
+/* sandwich bread {
+  background: radial-gradient(ellipse at center, #f9e4b7 0%, #e2b979 100%);
+  border-radius: 50% 50% 40% 40% / 55% 55% 45% 45%; 
+  box-shadow:
+    inset 0 0 15px rgba(160, 110, 60, 0.4),
+    0 8px 6px -4px rgba(120, 70, 40, 0.3),
+    0 14px 10px -6px rgba(100, 60, 30, 0.2),
+    0 18px 12px -8px rgba(80, 50, 25, 0.15);
+  display: block;
+  height: 280px;
+  width: 280px;
+  position: absolute;
+  transform: rotateX(60deg) rotateZ(-2deg);
+}
+ */
+
 
 
 sandwich cheese {

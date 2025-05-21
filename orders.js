@@ -1,3 +1,7 @@
+import {  playBonusClick } from './audio.js';
+
+import {addPoints, updatePointsDisplay} from './coins.js';
+
 const proteins = ["ham", "salmon", "egg"];
 const vegetables = ["tomato", "lettuce", "avocado"];
 const sauces = ["mayo", "ketchup"];
@@ -172,7 +176,8 @@ export function checkSlipperyStack(recentLayers) {
 
 
 //At least 5 different non-bread ingredients
-function checkRainbowLayer(stack) {
+export function checkRainbowLayer(stack) {
+  console.log(stack);
   const nonBread = stack.filter(i => i !== "bread");
   const unique = new Set(nonBread);
   return unique.size >= 5;
@@ -181,7 +186,7 @@ function checkRainbowLayer(stack) {
 
 
 
-function checkSymmetryStack(stack) {
+export function checkSymmetryStack(stack) {
   for (let i = 0; i < Math.floor(stack.length / 2); i++) {
     if (stack[i] !== stack[stack.length - 1 - i]) {
       return false;
@@ -233,6 +238,14 @@ function scoreIngredientMatch(requiredItems, sandwich) {
 
 
 
+export function symmetricLayer_test(){
+  const colors = ['#6EDCD9', '#84F4C0'];
+  const popup_innerHTML = `Symmetric Layers (×2)!`;
+  const popup_style_background = `linear-gradient(to right, ${colors[0]}, ${colors[1]})`;
+}
+
+
+
 export function scoreSandwich(ingredients, sandwich) {
     console.log(ingredients);
   
@@ -275,18 +288,6 @@ export function scoreSandwich(ingredients, sandwich) {
     if (ingredients.onion === false && counts["onion"]) {
         score -= 5;
     }
-
-
-    if(checkRainbowLayer(sandwich)){
-      score += 5;
-      console.log("Rainbow Layers");
-    }
-
-    if(checkSymmetryStack(sandwich)){
-      score *= 2;
-      console.log("Symmetric Layers");
-    }
-
   
     if (valid_sandwich) {
       score += 3 * 2; //for breads
@@ -316,7 +317,6 @@ export function scoreSandwich(ingredients, sandwich) {
       } else {
         const options = [
             "Was this... abstract sandwich art?",
-            "Chef's note: maybe don't quit your day job.", 
             "A brave reinterpretation of the order."
         ];
         text = options[Math.floor(Math.random() * options.length)];
